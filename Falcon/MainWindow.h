@@ -4,17 +4,23 @@
 namespace Views
 {
 	class MainWindow :
-		public virtual Window
+		public Window
 	{
 	public:
 		MainWindow(
-			LPCWSTR title,
+			const std::wstring &title,
 			int x = CW_USEDEFAULT,
 			int y = CW_USEDEFAULT,
 			int width = CW_USEDEFAULT,
 			int height = CW_USEDEFAULT
-		): Window(nullptr, title, L"MainWindowViewClass", x, y, width, height) 
+		): Window(title, L"MainWindowViewClass", x, y, width, height) 
 		{
+			hasCustomPaint = true;
 		}
+
+
+
+	protected:
+		virtual void onPaint(HDC hdc, PAINTSTRUCT *ps);
 	};
 }

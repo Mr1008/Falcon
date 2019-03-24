@@ -13,6 +13,7 @@ LRESULT CALLBACK Views::OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
 		ViewBase* view = reinterpret_cast<ViewBase*>(pCreate->lpCreateParams);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(view));
+		view->onCreate();
 		return 0;
 	}
 
@@ -25,31 +26,41 @@ LRESULT CALLBACK Views::OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		return 0;
 
 	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hwnd, &ps);
-		view->onPaint(hdc, &ps);
-		EndPaint(hwnd, &ps);
-		return 0;
-	}
+		if (view->hasCustomPaint)
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hwnd, &ps);
+			view->onPaint(hdc, &ps);
+			EndPaint(hwnd, &ps);
+			return 0;
+		}
+		break;
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-ViewBase::ViewBase(
-	const wstring &className, 
-	const ViewBase * parent, 
-	const wstring &title, 
-	DWORD style,
-	int x, int y, int width, int height
-)
+void Views::ViewBase::addChild(ViewBase &child)
 {
-	CreateAndRegisterClass(className);
-	MakeWindow(parent, title.c_str(), style, x, y, width, height);
+	child.setParent(this);
+	children.push_back(&child);
 }
 
-void ViewBase::show(int mode) const
+void Views::ViewBase::setParent(ViewBase *parent)
 {
+	this->parent = parent;
+}
+
+void ViewBase::show(int mode)
+{
+	for (auto child : children) {
+		child->show(mode);
+	}
+
+	if (!hwnd)
+	{
+		CreateAndRegisterClass();
+		MakeWindow();
+	}
 	ShowWindow(hwnd, mode);
 }
 
@@ -58,40 +69,38 @@ void ViewBase::set_hInstance(HINSTANCE hInstance)
 	ViewBase::hInstance = hInstance;
 }
 
+void Views::ViewBase::onCreate()
+{
+}
+
+void Views::ViewBase::onPaint(HDC hdc, PAINTSTRUCT * ps)
+{
+}
+
 void Views::ViewBase::onDestroy()
 {
 	PostQuitMessage(0);
 }
 
-void ViewBase::CreateAndRegisterClass(const wstring &className)
+void ViewBase::CreateAndRegisterClass()
 {
-	this->className = className.c_str();
 	WNDCLASS wc = { };
-
 	wc.lpfnWndProc = Views::OnMessage;
 	wc.hInstance = ViewBase::hInstance;
-	wc.lpszClassName = this->className;
+	wc.lpszClassName = className.c_str();
 
 	RegisterClass(&wc);
 }
 
-void ViewBase::MakeWindow(
-	const ViewBase* parent,
-	LPCWSTR title,
-	DWORD style,
-	int x,
-	int y,
-	int width,
-	int height
-)
+void ViewBase::MakeWindow()
 {
 	hwnd = CreateWindowEx(
 		0,
-		this->className,
-		title,
+		className.c_str(),
+		title.c_str(),
 		style,
 		x, y, width, height,
-		parent ? parent->getHwnd() : nullptr, // parent
+		parent ? parent->getHwnd() : nullptr,
 		nullptr,
 		ViewBase::hInstance,
 		this

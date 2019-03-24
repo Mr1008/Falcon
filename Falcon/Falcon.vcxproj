@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Direct2DCanvas.cpp" />
     <ClCompile Include="MessagePipe.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -155,6 +156,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Direct2DCanvas.h" />
     <ClInclude Include="MessagePipe.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="MainWindow.h" />
