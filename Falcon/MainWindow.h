@@ -1,7 +1,7 @@
 #pragma once
 #include "Window.h"
 
-namespace Views
+namespace Controls
 {
 	class MainWindow :
 		public Window
@@ -18,9 +18,8 @@ namespace Views
 			hasCustomPaint = true;
 		}
 
-
-
 	protected:
-		virtual void onPaint(HDC hdc, PAINTSTRUCT *ps);
+		virtual int onPaint(HDC hdc, PAINTSTRUCT *ps);
+		virtual int onDestroy();
 	};
 }

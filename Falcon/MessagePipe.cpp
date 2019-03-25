@@ -1,13 +1,14 @@
 #include "pch.h"
 #include "MessagePipe.h"
 
-using namespace Messages;
-
-void MessagePipe::start()
+namespace Messages
 {
-	MSG msg = {};
-	while (GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+	void MessagePipe::start()
+	{
+		MSG msg = {};
+		while (GetMessage(&msg, NULL, 0, 0)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 }

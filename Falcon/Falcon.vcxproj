@@ -151,7 +151,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="ViewBase.cpp" />
+    <ClCompile Include="Control.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -160,7 +160,7 @@
     <ClInclude Include="MessagePipe.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="ViewBase.h" />
+    <ClInclude Include="Control.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

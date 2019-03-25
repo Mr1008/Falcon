@@ -1,9 +1,17 @@
 #include "pch.h"
 #include "MainWindow.h"
 
-using namespace Views;
-
-void MainWindow::onPaint(HDC hdc, PAINTSTRUCT *ps)
+namespace Controls
 {
-	FillRect(hdc, &ps->rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+	int MainWindow::onPaint(HDC hdc, PAINTSTRUCT *ps)
+	{
+		FillRect(hdc, &ps->rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+		return 0;
+	}
+
+	int MainWindow::onDestroy()
+	{
+		PostQuitMessage(0);
+		return 0;
+	}
 }

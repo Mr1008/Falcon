@@ -1,10 +1,10 @@
 #pragma once
-#include "ViewBase.h"
+#include "Control.h"
 
-namespace Views
+namespace Controls
 {
 	class Window
-		: public ViewBase
+		: public Control
 	{
 	public:
 		Window(
@@ -14,9 +14,8 @@ namespace Views
 			int y = CW_USEDEFAULT,
 			int width = CW_USEDEFAULT,
 			int height = CW_USEDEFAULT
-		) : ViewBase(windowClass, title, WS_OVERLAPPEDWINDOW, x, y, width, height)
-		{
-		}
+		);
+
+		virtual int onResize(ResizeType type, const SIZE &size);
 	};
 }
-
