@@ -44,6 +44,9 @@ namespace Controls
 		std::vector<Control*> children;
 		
 		void setControlPosAndSize(POINT *pos, const SIZE *size);
+		void forceRender(const RECT *rect = nullptr);
+		const SIZE& getSize() const;
+		const POINT& getPos() const;
 
 	private:
 		HWND hwnd = nullptr;

@@ -3,13 +3,15 @@
 
 namespace Controls
 {
+	using namespace std;
+
 	template <class T>
 	void SafeRelease(T **ppT)
 	{
 		if (*ppT)
 		{
 			(*ppT)->Release();
-			*ppT = NULL;
+			*ppT = nullptr;
 		}
 	}
 
@@ -30,17 +32,15 @@ namespace Controls
 
 	int Direct2DCanvas::onPaint(HDC hdi, PAINTSTRUCT *ps)
 	{
-		HRESULT hr = CreateGraphicsResources(&ps->rcPaint);
+		HRESULT hr = createGraphicsResources(&ps->rcPaint);
 		if (SUCCEEDED(hr))
 		{
 			pRenderTarget->BeginDraw();
-			pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::SkyBlue));
-			pRenderTarget->FillEllipse(ellipse, pBrush);
-
+			onRenderDxScene(pRenderTarget);
 			hr = pRenderTarget->EndDraw();
 			if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
 			{
-				DiscardGraphicsResources();
+				onReleaseDxResources();
 			}
 		}
 		return 0;
@@ -48,7 +48,7 @@ namespace Controls
 
 	int Direct2DCanvas::onDestroy()
 	{
-		DiscardGraphicsResources();
+		onReleaseDxResources();
 		SafeRelease(&pFactory);
 		PostQuitMessage(0);
 		return 0;
@@ -61,34 +61,21 @@ namespace Controls
 		{
 			D2D1_SIZE_U d2size = D2D1::SizeU(size.cx, size.cy);
 			pRenderTarget->Resize(d2size);
-			CalculateLayout();
-			InvalidateRect(getHwnd(), nullptr, false);
+			forceRender();
 		}
 		return 0;
 	}
 
-	void Direct2DCanvas::DiscardGraphicsResources()
+	void Direct2DCanvas::onReleaseDxResources()
 	{
 		SafeRelease(&pRenderTarget);
-		SafeRelease(&pBrush);
 	}
 
-	void Direct2DCanvas::CalculateLayout()
-	{
-		if (pRenderTarget != NULL)
-		{
-			D2D1_SIZE_F size = pRenderTarget->GetSize();
-			const float x = size.width / 2;
-			const float y = size.height / 2;
-			const float radius = min(x, y);
-			ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
-		}
-	}
 
-	HRESULT Direct2DCanvas::CreateGraphicsResources(RECT *rect)
+	HRESULT Direct2DCanvas::createGraphicsResources(RECT *rect)
 	{
 		HRESULT hr = S_OK;
-		if (pRenderTarget == NULL)
+		if (pRenderTarget == nullptr)
 		{
 			D2D1_SIZE_U size = D2D1::SizeU(rect->right, rect->bottom);
 
@@ -99,13 +86,7 @@ namespace Controls
 
 			if (SUCCEEDED(hr))
 			{
-				const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 0);
-				hr = pRenderTarget->CreateSolidColorBrush(color, &pBrush);
-
-				if (SUCCEEDED(hr))
-				{
-					CalculateLayout();
-				}
+				onCreateDxResources(pRenderTarget);
 			}
 		}
 		return hr;

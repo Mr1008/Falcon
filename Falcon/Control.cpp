@@ -134,6 +134,21 @@ namespace Controls
 		);
 	}
 
+	void Control::forceRender(const RECT * rect)
+	{
+		InvalidateRect(hwnd, rect, false);
+	}
+
+	const SIZE& Control::getSize() const
+	{
+		return size;
+	}
+
+	const POINT& Control::getPos() const
+	{
+		return pos;
+	}
+
 	void Control::createAndRegisterClass()
 	{
 		WNDCLASS wc = { };

@@ -18,7 +18,6 @@ namespace Controls
 			hasCustomPaint = true;
 		}
 
-	protected:
 		virtual int onPaint(HDC hdc, PAINTSTRUCT *ps);
 		virtual int onDestroy();
 	};

@@ -153,6 +153,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Control.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Terminal.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +162,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Control.h" />
+    <ClInclude Include="Terminal.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

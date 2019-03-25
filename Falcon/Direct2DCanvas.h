@@ -11,20 +11,18 @@ namespace Controls {
 		Direct2DCanvas(
 			const std::wstring &className);
 
-	protected:
 		virtual int onCreate();
 		virtual int onPaint(HDC hdi, PAINTSTRUCT *ps);
 		virtual int onDestroy();
 		virtual int onResize(ResizeType type, const SIZE &size);
+		virtual void onRenderDxScene(ID2D1RenderTarget *target) = 0;
+		virtual void onReleaseDxResources();
+		virtual void onCreateDxResources(ID2D1RenderTarget *target) = 0;
 
 	private:
-		ID2D1Factory            *pFactory;
-		ID2D1HwndRenderTarget   *pRenderTarget;
-		ID2D1SolidColorBrush    *pBrush;
-		D2D1_ELLIPSE            ellipse;
+		ID2D1Factory *pFactory;
+		ID2D1HwndRenderTarget *pRenderTarget;
 
-		void DiscardGraphicsResources();
-		void CalculateLayout();
-		HRESULT CreateGraphicsResources(RECT *rect);
+		HRESULT createGraphicsResources(RECT *rect);
 	};
 }
