@@ -10,7 +10,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 {
 	Control::set_hInstance(hInstance);
 	MainWindow window(L"Falcon");
-	Direct2DCanvas d2d(L"Test", 0, 0, 100, 100);
+	Direct2DCanvas d2d(L"Test");
 	window.addChild(d2d);
 	window.show();
 	MessagePipe::start();

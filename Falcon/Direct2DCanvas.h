@@ -9,11 +9,7 @@ namespace Controls {
 	{
 	public:
 		Direct2DCanvas(
-			const std::wstring &className,
-			int x = CW_USEDEFAULT,
-			int y = CW_USEDEFAULT,
-			int width = CW_USEDEFAULT,
-			int height = CW_USEDEFAULT);
+			const std::wstring &className);
 
 	protected:
 		virtual int onCreate();

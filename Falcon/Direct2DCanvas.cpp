@@ -13,8 +13,8 @@ namespace Controls
 		}
 	}
 
-	Direct2DCanvas::Direct2DCanvas(const std::wstring &className, int x, int y, int width, int height)
-		: Control(className, L"", WS_CHILD | WS_VISIBLE, x, y, width, height)
+	Direct2DCanvas::Direct2DCanvas(const std::wstring &className)
+		: Control(className, L"", WS_CHILD | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT)
 	{
 		hasCustomPaint = true;
 	}
