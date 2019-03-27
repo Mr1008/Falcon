@@ -181,6 +181,7 @@
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TerminalCanvas.h" />
+    <ClInclude Include="TerminalRenderer.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

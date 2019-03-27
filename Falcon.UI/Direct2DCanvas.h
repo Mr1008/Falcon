@@ -19,6 +19,10 @@ namespace Controls {
 		virtual void onReleaseDxResources();
 		virtual void onCreateDxResources(ID2D1RenderTarget *target) = 0;
 
+	protected:
+		template <class T>
+		void releaseDxResource(T **ppT);
+
 	private:
 		ID2D1Factory *pFactory;
 		ID2D1HwndRenderTarget *pRenderTarget;

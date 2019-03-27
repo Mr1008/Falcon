@@ -61,5 +61,8 @@
     <ClInclude Include="Pointer.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="TerminalRenderer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

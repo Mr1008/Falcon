@@ -17,9 +17,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="TermBuffer.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="Term.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -32,9 +29,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="TermBuffer.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Term.h">

@@ -9,8 +9,7 @@ namespace Controls
 
 	LRESULT CALLBACK Controls::OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		if (uMsg == WM_CREATE)
-		{
+		if (uMsg == WM_CREATE) {
 			CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
 			Control* view = reinterpret_cast<Control*>(pCreate->lpCreateParams);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(view));
@@ -24,8 +23,7 @@ namespace Controls
 		case WM_DESTROY:
 			return view->onDestroy();
 		case WM_PAINT:
-			if (view->hasCustomPaint)
-			{
+			if (view->hasCustomPaint) {
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(hwnd, &ps);
 				int result = view->onPaint(hdc, &ps);
@@ -146,20 +144,17 @@ namespace Controls
 
 	void Control::show(int mode)
 	{
-		if (!hwnd)
-		{
+		if (!hwnd) {
 			createAndRegisterClass();
 			createControl();
 		}
 		ShowWindow(hwnd, mode);
 
-		for (auto child : children) 
-		{
+		for (auto child : children) {
 			child->show(mode);
 		}
 
-		if (defaultChild) 
-		{
+		if (defaultChild) {
 			defaultChild->focus();
 		}
 	}
@@ -202,12 +197,10 @@ namespace Controls
 
 	void Control::setControlPosAndSize(POINT *pos, const SIZE *size)
 	{
-		if (pos)
-		{
+		if (pos) {
 			this->pos = *pos;
 		}
-		if (size)
-		{
+		if (size) {
 			this->size = *size;
 		}
 
@@ -274,8 +267,7 @@ namespace Controls
 
 	void Control::forEachInputListener(std::function<void(InputListener*)> fn)
 	{
-		for (auto listener : inputListeners)
-		{
+		for (auto listener : inputListeners) {
 			fn(listener);
 		}
 	}

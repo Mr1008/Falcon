@@ -3,8 +3,8 @@
 
 namespace Controls
 {
-	class Window
-		: public Control
+	class Window :
+		public Control
 	{
 	public:
 		Window(

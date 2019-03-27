@@ -6,7 +6,7 @@ namespace Controls
 	using namespace std;
 
 	template <class T>
-	void SafeRelease(T **ppT)
+	void Direct2DCanvas::releaseDxResource(T **ppT)
 	{
 		if (*ppT)
 		{
@@ -49,8 +49,6 @@ namespace Controls
 	int Direct2DCanvas::onDestroy()
 	{
 		onReleaseDxResources();
-		SafeRelease(&pFactory);
-		PostQuitMessage(0);
 		return 0;
 	}
 
@@ -68,7 +66,8 @@ namespace Controls
 
 	void Direct2DCanvas::onReleaseDxResources()
 	{
-		SafeRelease(&pRenderTarget);
+		releaseDxResource(&pRenderTarget);
+		releaseDxResource(&pFactory);
 	}
 
 

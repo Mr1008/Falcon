@@ -8,31 +8,37 @@ namespace Controls
 	{
 	}
 
-	void TerminalCanvas::draw(wchar_t character)
+	void TerminalCanvas::registerRenderer(TerminalRenderer * renderer)
 	{
+		this->renderer = renderer;
+	}
 
+	void TerminalCanvas::render()
+	{
+		forceRender();
 	}
 
 	void TerminalCanvas::onRenderDxScene(ID2D1RenderTarget *target)
 	{
-		target->Clear(D2D1::ColorF(D2D1::ColorF::Black));
+		if (renderer) {
+			renderer->onRenderDxScene(target);
+		}
 	}
 
-	void TerminalCanvas::onCreateDxResources(ID2D1RenderTarget * target)
+	void TerminalCanvas::onCreateDxResources(ID2D1RenderTarget *target)
 	{
-		const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f);
-		HRESULT hr = target->CreateSolidColorBrush(color, &pBrush);
-
-		if (SUCCEEDED(hr))
-		{
-			CalculateLayout();
+		if (renderer) {
+			renderer->onCreateDxResources(target);
 		}
 	}
 
 	void TerminalCanvas::onReleaseDxResources()
 	{
-		pBrush->Release();
-		pBrush = nullptr;
+		Direct2DCanvas::onReleaseDxResources();
+
+		if (renderer) {
+			renderer->onReleaseDxResources();
+		}
 	}
 
 	int TerminalCanvas::onResize(ResizeType type, const SIZE &size)
@@ -40,12 +46,10 @@ namespace Controls
 		int ret = Direct2DCanvas::onResize(type, size);
 		if (ret) return ret;
 
-		CalculateLayout();
+		if (renderer) {
+			return renderer->onResizeScene(type, size);
+		}
 
 		return 0;
-	}
-
-	void TerminalCanvas::CalculateLayout()
-	{
 	}
 }
