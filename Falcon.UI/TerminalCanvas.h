@@ -3,11 +3,13 @@
 
 namespace Controls
 {
-	class Terminal
+	class TerminalCanvas
 		: public Direct2DCanvas
 	{
 	public:
-		Terminal();
+		TerminalCanvas();
+
+		void draw(wchar_t character);
 
 		virtual void onRenderDxScene(ID2D1RenderTarget *target);
 		virtual void onCreateDxResources(ID2D1RenderTarget *target);
@@ -16,8 +18,7 @@ namespace Controls
 
 	private:
 		ID2D1SolidColorBrush *pBrush;
-		D2D1_ELLIPSE ellipse;
-
+		POINT cursorPos;
 		void CalculateLayout();
 	};
 }

@@ -11,15 +11,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Exceptions.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="TermBuffer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Term.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Exceptions.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
     <ClInclude Include="pch.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="TermBuffer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Term.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

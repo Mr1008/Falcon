@@ -1,6 +1,8 @@
 #pragma once
 #include "pch.h"
+#include "InputListener.h"
 #include <vector>
+#include <functional>
 
 namespace Controls
 {
@@ -27,8 +29,11 @@ namespace Controls
 		{
 		}
 		
-		void addChild(Control &child);
+		void addChild(Control &child, bool defaultFocus = false);
 		void show(int mode = SW_SHOWNORMAL);
+		void focus();
+		bool hasFocus();
+		void listenToInput(InputListener *listener);
 		HWND getHwnd() const { return hwnd; }
 		static void set_hInstance(HINSTANCE hInstance);
 
@@ -53,13 +58,17 @@ namespace Controls
 		std::wstring className;
 		static HINSTANCE hInstance;
 		const Control *parent;
+		Control *defaultChild;
 		std::wstring title;
 		DWORD style;
 		POINT pos;
 		SIZE size;
+		std::vector<InputListener*> inputListeners;
+
 
 		void setParent(Control *parent);
 		void createAndRegisterClass();
 		void createControl();
+		void forEachInputListener(std::function<void(InputListener*)> fn);
 	};
 }
