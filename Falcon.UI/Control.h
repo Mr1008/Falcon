@@ -33,7 +33,7 @@ namespace Controls
 		void show(int mode = SW_SHOWNORMAL);
 		void focus();
 		bool hasFocus();
-		void listenToInput(InputListener *listener);
+		void registerInputListener(InputListener *listener);
 		HWND getHwnd() const { return hwnd; }
 		static void set_hInstance(HINSTANCE hInstance);
 

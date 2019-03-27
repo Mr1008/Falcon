@@ -125,11 +125,6 @@ namespace Controls
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
-	void Control::listenToInput(InputListener *listener)
-	{
-		inputListeners.push_back(listener);
-	}
-
 	void Control::addChild(Control &child, bool defaultFocus)
 	{
 		child.setParent(this);
@@ -167,6 +162,11 @@ namespace Controls
 	bool Control::hasFocus()
 	{
 		return GetFocus() == hwnd;
+	}
+
+	void Control::registerInputListener(InputListener *listener)
+	{
+		inputListeners.push_back(listener);
 	}
 
 	void Control::set_hInstance(HINSTANCE hInstance)

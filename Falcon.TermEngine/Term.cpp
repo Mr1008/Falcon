@@ -10,7 +10,7 @@ namespace Engine
 	Term::Term(Controls::TerminalCanvas *canvas)
 		: canvas(canvas)
 	{
-		canvas->listenToInput(this);
+		canvas->registerInputListener(this);
 		canvas->registerRenderer(this);
 	}
 
@@ -61,7 +61,7 @@ namespace Engine
 			DWRITE_FONT_WEIGHT_NORMAL,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
-			25,
+			16,
 			L"",
 			&textFormat
 		);
@@ -71,14 +71,20 @@ namespace Engine
 
 	void Term::onReleaseDxResources()
 	{
-		fgBrush->Release();
-		fgBrush = nullptr;
-		dWriteFactory->Release();
-		dWriteFactory = nullptr;
+		releaseDxResource(&fgBrush);
+		releaseDxResource(&textFormat);
+		releaseDxResource(&dWriteFactory);
 	}
 
 	int Term::onResizeScene(ResizeType type, const SIZE &size)
 	{
 		return 0;
+	}
+
+	template <class T>
+	void Term::releaseDxResource(T **resource)
+	{
+		(*resource)->Release();
+		*resource = nullptr;
 	}
 }

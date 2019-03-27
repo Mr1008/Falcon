@@ -28,5 +28,9 @@ namespace Engine
 		ID2D1SolidColorBrush *fgBrush;
 		IDWriteTextFormat *textFormat;
 		IDWriteFactory *dWriteFactory;
+
+		template <class T>
+		void releaseDxResource(T **resource);
 	};
 }
+
