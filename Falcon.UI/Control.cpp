@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Control.h"
-#include "Pointer.h"
+#include "Mouse.h"
 
 namespace Controls
 {

@@ -20,6 +20,18 @@
     <ClCompile Include="Term.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="TextBuffer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FontLoader.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="DWriteFontCollectionLoader.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="DWriteFontFileEnumerator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h">
@@ -34,5 +46,23 @@
     <ClInclude Include="Term.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="TextBuffer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="DxCommon.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="FontLoader.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="DWriteFontCollectionLoader.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="DWriteFontFileEnumerator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Fonts\UbuntuMono-R.ttf" />
   </ItemGroup>
 </Project>
