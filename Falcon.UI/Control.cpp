@@ -10,13 +10,13 @@ namespace Controls
 	LRESULT CALLBACK Controls::OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (uMsg == WM_CREATE) {
-			CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+			CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
 			Control* view = reinterpret_cast<Control*>(pCreate->lpCreateParams);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(view));
 			return view->onCreate();
 		}
 
-		Control *view = reinterpret_cast<Control*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+		Control* view = reinterpret_cast<Control*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
 		switch (uMsg)
 		{
@@ -33,7 +33,8 @@ namespace Controls
 			break;
 
 		case WM_SIZE:
-			ResizeType type;
+		{
+			ResizeType type = ResizeType::Unknown;
 			switch (wParam)
 			{
 			case SIZE_RESTORED:
@@ -53,61 +54,61 @@ namespace Controls
 				break;
 			}
 			return view->onResize(type, { LOWORD(lParam), HIWORD(lParam) });
-
+		}
 		case WM_MOUSEMOVE:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener *l) {
+			view->forEachInputListener([&pos](InputListener * l) {
 				l->onMouseMoved(pos);
-			});
+				});
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener *l) {
+			view->forEachInputListener([&pos](InputListener * l) {
 				l->onMouseButtonDown(pos, MouseButton::Left);
-			});
+				});
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener *l) {
+			view->forEachInputListener([&pos](InputListener * l) {
 				l->onMouseButtonUp(pos, MouseButton::Left);
-			});
+				});
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener *l) {
+			view->forEachInputListener([&pos](InputListener * l) {
 				l->onMouseButtonDown(pos, MouseButton::Middle);
-			});
+				});
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener *l) {
+			view->forEachInputListener([&pos](InputListener * l) {
 				l->onMouseButtonUp(pos, MouseButton::Middle);
-			});
+				});
 			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener *l) {
+			view->forEachInputListener([&pos](InputListener * l) {
 				l->onMouseButtonDown(pos, MouseButton::Right);
-			});
+				});
 			return 0;
 		}
 		case WM_RBUTTONUP:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener *l) {
+			view->forEachInputListener([&pos](InputListener * l) {
 				l->onMouseButtonUp(pos, MouseButton::Right);
-			});
+				});
 			return 0;
 		}
 		case WM_CHAR:
@@ -115,9 +116,9 @@ namespace Controls
 			wchar_t key = static_cast<wchar_t>(wParam);
 			bool firstOccurence = !(lParam & 1 << 30);
 			unsigned int repeatCount = lParam & 0xffff;
-			view->forEachInputListener([key, firstOccurence, repeatCount](InputListener *l) {
+			view->forEachInputListener([key, firstOccurence, repeatCount](InputListener * l) {
 				l->onKeyPushed(key, firstOccurence, repeatCount);
-			});
+				});
 			return 0;
 		}
 		}
@@ -125,31 +126,43 @@ namespace Controls
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
-	void Control::addChild(Control &child, bool defaultFocus)
+	Control::Control(const std::wstring & className, const std::wstring & title, DWORD style, int x, int y, int width, int height) :
+		className(className),
+		title(title),
+		style(style),
+		pos({ x, y }),
+		size({ width, height }),
+		defaultChild(nullptr),
+		parent(nullptr)
+	{
+	}
+
+	void Control::addChild(Control & child, bool defaultFocus)
 	{
 		child.setParent(this);
 		children.push_back(&child);
 		defaultChild = &child;
 	}
 
-	void Control::setParent(Control *parent)
+	void Control::setParent(Control * parent)
 	{
 		this->parent = parent;
 	}
 
 	void Control::show(int mode)
 	{
-		if (!hwnd) {
+		if (hwnd == nullptr) {
 			createAndRegisterClass();
 			createControl();
 		}
+
 		ShowWindow(hwnd, mode);
 
 		for (auto child : children) {
 			child->show(mode);
 		}
 
-		if (defaultChild) {
+		if (defaultChild != nullptr) {
 			defaultChild->focus();
 		}
 	}
@@ -164,7 +177,7 @@ namespace Controls
 		return GetFocus() == hwnd;
 	}
 
-	void Control::registerInputListener(InputListener *listener)
+	void Control::registerInputListener(InputListener * listener)
 	{
 		inputListeners.push_back(listener);
 	}
@@ -189,13 +202,13 @@ namespace Controls
 		return 0;
 	}
 
-	int Control::onResize(ResizeType reason, const SIZE &size)
+	int Control::onResize(ResizeType reason, const SIZE & size)
 	{
 		this->size = size;
 		return 0;
 	}
 
-	void Control::setControlPosAndSize(POINT *pos, const SIZE *size)
+	void Control::setControlPosAndSize(POINT * pos, const SIZE * size)
 	{
 		if (pos) {
 			this->pos = *pos;
@@ -260,9 +273,8 @@ namespace Controls
 			this
 		);
 
-		if (hwnd == NULL) {
+		if (hwnd == nullptr)
 			throw std::exception("Could not create window");
-		}
 	}
 
 	void Control::forEachInputListener(std::function<void(InputListener*)> fn)

@@ -20,16 +20,13 @@
     <ClCompile Include="Term.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="TextBuffer.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="FontLoader.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="DWriteFontCollectionLoader.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="DWriteFontFileEnumerator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="DWriteFontLoader.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -46,19 +43,16 @@
     <ClInclude Include="Term.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="TextBuffer.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="DxCommon.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="FontLoader.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="DWriteFontCollectionLoader.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="DWriteFontFileEnumerator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="DWriteFontLoader.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

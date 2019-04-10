@@ -8,7 +8,7 @@ namespace Engine::Fonts
 		: public IDWriteFontFileEnumerator
 	{
 	public:
-		DWriteFontFileEnumerator(IDWriteFactory* factory);
+		DWriteFontFileEnumerator(IDWriteFactory* factory, const std::vector<std::vector<std::wstring>> &fontCollections);
 		~DWriteFontFileEnumerator();
 
 		HRESULT Initialize(UINT const* collectionKey, UINT32 keySize);
@@ -26,6 +26,7 @@ namespace Engine::Fonts
 		IDWriteFactory* factory;
 		IDWriteFontFile* currentFile;
 		std::vector<std::wstring> filePaths;
+		const std::vector<std::vector<std::wstring>>& fontCollections;
 		size_t nextIndex;
 	};
 }

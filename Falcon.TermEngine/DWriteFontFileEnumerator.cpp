@@ -1,12 +1,18 @@
 #include "pch.h"
 #include "DWriteFontFileEnumerator.h"
 #include "DxCommon.h"
-#include "FontLoader.h"
+#include "DWriteFontLoader.h"
 
 namespace Engine::Fonts
 {
-	DWriteFontFileEnumerator::DWriteFontFileEnumerator(IDWriteFactory* factory)
-		: refCount(0), factory(SafeAcquire(factory)), currentFile(), nextIndex(0)
+	using namespace std;
+
+	DWriteFontFileEnumerator::DWriteFontFileEnumerator(IDWriteFactory* factory, const vector<vector<wstring>> &fontCollections) :
+		refCount(0), 
+		factory(SafeAcquire(factory)), 
+		currentFile(), 
+		nextIndex(0),
+		fontCollections(fontCollections)
 	{
 	}
 
@@ -18,16 +24,14 @@ namespace Engine::Fonts
 
 	HRESULT DWriteFontFileEnumerator::Initialize(UINT const* collectionKey, UINT32 keySize)
 	{
-		try
-		{
-			UINT cPos = *collectionKey;
-			for (auto it = MFFontContext::collections()[cPos].begin(); it != MFFontContext::collections()[cPos].end(); ++it)
+		UINT key = *collectionKey;
+		if (key < fontCollections.size()) {
+			for (auto it = fontCollections[key].begin(); it != fontCollections[key].end(); ++it)
 			{
 				filePaths.push_back(it->c_str());
 			}
 		}
-		catch (...)
-		{
+		else {
 			return E_FAIL;
 		}
 		return S_OK;

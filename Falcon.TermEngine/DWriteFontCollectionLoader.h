@@ -1,4 +1,5 @@
 #include <dwrite.h>
+#include <vector>
 
 namespace Engine::Fonts
 {
@@ -6,7 +7,7 @@ namespace Engine::Fonts
 		: public IDWriteFontCollectionLoader
 	{
 	public:
-		DWriteFontCollectionLoader();
+		DWriteFontCollectionLoader(const std::vector<std::vector<std::wstring>> &fontCollections);
 
 		virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
 		virtual ULONG STDMETHODCALLTYPE AddRef();
@@ -18,11 +19,8 @@ namespace Engine::Fonts
 			IDWriteFontFileEnumerator** fontFileEnumerator
 		);
 
-		static IDWriteFontCollectionLoader* GetLoader();
-		static bool IsLoaderInitialized();
-
 	private:
 		ULONG refCount;
-		static IDWriteFontCollectionLoader* instance;
+		const std::vector<std::vector<std::wstring>>& fontCollections;
 	};
 }

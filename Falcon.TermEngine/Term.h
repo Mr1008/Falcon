@@ -4,7 +4,6 @@
 #include "../Falcon.UI/TerminalCanvas.h"
 #include "../Falcon.UI/InputListener.h"
 #include "../Falcon.UI/Mouse.h"
-#include "TextBuffer.h"
 
 namespace Engine
 {
@@ -31,11 +30,11 @@ namespace Engine
 		IDWriteFontFile *fontFile;
 		IDWriteFontFace *fontFace;
 		IDWriteFactory *dWriteFactory;
-		std::unique_ptr<TextBuffer> textBuffer;
 		float charWidth;
 		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);
 		SIZE sceneSize;
 
+		void loadFont(HRESULT& hr);
 		void calculateCharWidth();
 	};
 }

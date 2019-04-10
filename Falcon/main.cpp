@@ -11,7 +11,7 @@ using namespace Messages;
 using namespace Controls;
 using namespace Engine;
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCmdLine, _In_ int nCmdShow)
 {
 	Control::set_hInstance(hInstance);
 	MainWindow window(L"Falcon");

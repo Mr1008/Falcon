@@ -177,7 +177,7 @@
   <ItemGroup>
     <ClCompile Include="DWriteFontCollectionLoader.cpp" />
     <ClCompile Include="DWriteFontFileEnumerator.cpp" />
-    <ClCompile Include="FontLoader.cpp" />
+    <ClCompile Include="DWriteFontLoader.cpp" />
     <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -186,18 +186,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Term.cpp" />
-    <ClCompile Include="TextBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DWriteFontCollectionLoader.h" />
     <ClInclude Include="DWriteFontFileEnumerator.h" />
-    <ClInclude Include="FontLoader.h" />
+    <ClInclude Include="DWriteFontLoader.h" />
     <ClInclude Include="DxCommon.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Term.h" />
-    <ClInclude Include="TextBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\UbuntuMono-R.ttf" />

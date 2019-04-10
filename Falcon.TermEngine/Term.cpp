@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Term.h"
 #include "DxCommon.h"
-#include "FontLoader.h"
+#include "DWriteFontLoader.h"
 #pragma comment(lib, "dwrite")
 
 namespace Engine
@@ -11,14 +11,21 @@ namespace Engine
 	using namespace std;
 	wstring t;
 
-	Term::Term(Controls::TerminalCanvas *canvas)
-		: canvas(canvas), textBuffer(make_unique<TextBuffer>())
+	Term::Term(Controls::TerminalCanvas* canvas)
+		: canvas(canvas),
+		charWidth(-1.f),
+		dWriteFactory(nullptr),
+		fgBrush(nullptr),
+		fontFace(nullptr),
+		fontFile(nullptr),
+		sceneSize({ 0,0 }),
+		textFormat(nullptr)
 	{
 		canvas->registerInputListener(this);
 		canvas->registerRenderer(this);
 	}
 
-	void Term::onMouseMoved(const POINT &pos)
+	void Term::onMouseMoved(const POINT& pos)
 	{
 	}
 
@@ -33,18 +40,18 @@ namespace Engine
 		canvas->render();
 	}
 
-	void Term::onMouseButtonDown(const POINT &pos, MouseButton button)
+	void Term::onMouseButtonDown(const POINT& pos, MouseButton button)
 	{
 		if (!canvas->hasFocus()) {
 			canvas->focus();
 		}
 	}
 
-	void Term::onMouseButtonUp(const POINT &pos, MouseButton button)
+	void Term::onMouseButtonUp(const POINT& pos, MouseButton button)
 	{
 	}
 
-	void Term::onRenderDxScene(ID2D1RenderTarget *target)
+	void Term::onRenderDxScene(ID2D1RenderTarget* target)
 	{
 		target->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f));
 
@@ -59,35 +66,42 @@ namespace Engine
 		);
 	}
 
-	void Term::onCreateDxResources(ID2D1RenderTarget *target)
+	void Term::onCreateDxResources(ID2D1RenderTarget * target)
 	{
 		HRESULT hr = DWriteCreateFactory(
 			DWRITE_FACTORY_TYPE_SHARED,
 			__uuidof(IDWriteFactory),
-			reinterpret_cast<IUnknown**>(&dWriteFactory)
+			reinterpret_cast<IUnknown **>(&dWriteFactory)
 		);
 
-		MFFontContext fContext(dWriteFactory);
-		std::vector<std::wstring> filePaths;
-		wchar_t path[_MAX_PATH];
-		filePaths.push_back(wstring(_wfullpath(path, L"fonts/UbuntuMono-R.ttf", _MAX_PATH)));
-		IDWriteFontCollection *collection;
-		hr = fContext.CreateFontCollection(filePaths, &collection);
-		hr = dWriteFactory->CreateTextFormat(
-			L"Ubuntu Mono",
-			collection,
-			DWRITE_FONT_WEIGHT_NORMAL,
-			DWRITE_FONT_STYLE_NORMAL,
-			DWRITE_FONT_STRETCH_NORMAL,
-			21,
-			L"",
-			&textFormat
-		);
-		SafeRelease(&collection);
-		calculateCharWidth();
-		textBuffer->setLineWidth(static_cast<size_t>((sceneSize.cx - padding.left - padding.right) / charWidth));
+		loadFont(hr);
 		const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f);
 		target->CreateSolidColorBrush(color, &fgBrush);
+	}
+
+	void Term::loadFont(HRESULT& hr)
+	{
+		DWriteFontLoader fontLoader(dWriteFactory);
+		std::vector<std::wstring> filePaths;
+		wchar_t path[_MAX_PATH];
+		if (_wfullpath(path, L"fonts/UbuntuMono-R.ttf", _MAX_PATH))
+		{
+			filePaths.push_back(wstring(path));
+			IDWriteFontCollection* collection;
+			hr = fontLoader.CreateFontCollection(filePaths, &collection);
+			hr = dWriteFactory->CreateTextFormat(
+				L"Ubuntu Mono",
+				collection,
+				DWRITE_FONT_WEIGHT_NORMAL,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				21,
+				L"",
+				&textFormat
+			);
+			SafeRelease(&collection);
+			calculateCharWidth();
+		}
 	}
 
 	void Term::onReleaseDxResources()
@@ -99,20 +113,23 @@ namespace Engine
 		SafeRelease(&dWriteFactory);
 	}
 
-	int Term::onResizeScene(ResizeType type, const SIZE &size)
+	int Term::onResizeScene(ResizeType type, const SIZE & size)
 	{
 		sceneSize = size;
-		textBuffer->setLineWidth(static_cast<size_t>((size.cx - padding.left - padding.right) / charWidth));
 		return 0;
 	}
 
 	void Term::calculateCharWidth()
 	{
 		IDWriteTextLayout* textLayout;
-		dWriteFactory->CreateTextLayout(L"X", 1, textFormat, 100, 100, &textLayout);
-		HRESULT hr = textLayout->DetermineMinWidth(&charWidth);
-		if (FAILED(hr)) {
-			charWidth = -1.f;
+		HRESULT hr = dWriteFactory->CreateTextLayout(L"X", 1, textFormat, 100, 100, &textLayout);
+		if (SUCCEEDED(hr)) {
+			hr = textLayout->DetermineMinWidth(&charWidth);
+			if (FAILED(hr)) {
+				charWidth = -1.f;
+			}
+
+			SafeRelease(&textLayout);
 		}
 	}
 }

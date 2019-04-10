@@ -7,12 +7,9 @@ namespace Engine::Fonts
 {
 	using namespace std;
 
-	IDWriteFontCollectionLoader* DWriteFontCollectionLoader::instance(
-		new(nothrow) DWriteFontCollectionLoader()
-	);
-
-	DWriteFontCollectionLoader::DWriteFontCollectionLoader()
-		: refCount(0)
+	DWriteFontCollectionLoader::DWriteFontCollectionLoader(const vector<vector<wstring>>& fontCollections) :
+		refCount(0),
+		fontCollections(fontCollections)
 	{
 	}
 
@@ -58,7 +55,7 @@ namespace Engine::Fonts
 		if (collectionKeySize != sizeof(UINT))
 			return E_INVALIDARG;
 
-		DWriteFontFileEnumerator * enumerator = new(nothrow) DWriteFontFileEnumerator(factory);
+		DWriteFontFileEnumerator * enumerator = new(nothrow) DWriteFontFileEnumerator(factory, fontCollections);
 		if (!enumerator)
 			return E_OUTOFMEMORY;
 
@@ -74,15 +71,5 @@ namespace Engine::Fonts
 
 		*fontFileEnumerator = SafeAcquire(enumerator);
 		return hr;
-	}
-
-	IDWriteFontCollectionLoader* DWriteFontCollectionLoader::GetLoader()
-	{
-		return instance;
-	}
-
-	bool DWriteFontCollectionLoader::IsLoaderInitialized()
-	{
-		return instance != NULL;
 	}
 }
