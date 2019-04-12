@@ -19,6 +19,7 @@ namespace Engine
 		void setReturn(int retVal);
 		void onSlaveIsUp(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut);
 		void onSlaveIsDown();
+		bool isMasterUp();
 	};
 }
 

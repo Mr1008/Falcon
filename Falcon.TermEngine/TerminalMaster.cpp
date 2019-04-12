@@ -42,7 +42,18 @@ namespace Engine
 	{
 		terminalWindow->close();
 		windowThread->join();
+		windowThread = nullptr;
 		pipeListenerThread->join();
+		pipeListenerThread = nullptr;
+	}
+
+	bool TerminalMaster::isUp() const
+	{
+		if (terminalWindow == nullptr) {
+			return false;
+		}
+
+		return terminalWindow->isUp();
 	}
 
 	void TerminalMaster::onSlaveInput(char* buffer, size_t bufferSize)

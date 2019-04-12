@@ -8,13 +8,14 @@ namespace Engine
 	using namespace Controls;
 	using namespace std;
 
-	Term::Term(HINSTANCE hInstance) :		
-		master(nullptr)
+	Term::Term(HINSTANCE hInstance) :
+		master(nullptr),
+		retVal(1)
 	{
 		Control::set_hInstance(hInstance);
 	}
 
-	HRESULT Term::fillStartupInfo(STARTUPINFOEX *pStartupInfo, HPCON hPC)
+	HRESULT Term::fillStartupInfo(STARTUPINFOEX* pStartupInfo, HPCON hPC)
 	{
 		HRESULT hr = E_UNEXPECTED;
 
@@ -46,7 +47,7 @@ namespace Engine
 		return hr;
 	}
 
-	void Term::start(const wstring & command)
+	void Term::start(const wstring& command)
 	{
 		HRESULT hr = E_UNEXPECTED;
 		HANDLE pipePtyIn = INVALID_HANDLE_VALUE;
@@ -91,7 +92,12 @@ namespace Engine
 				if (S_OK == hr)
 				{
 					onSlaveIsUp(&piClient, pipeIn, pipeOut);
-					WaitForSingleObject(piClient.hThread, INFINITE);
+					while (WaitForSingleObject(piClient.hThread, 1000) == WAIT_TIMEOUT)
+					{
+						if (!isMasterUp()) {
+							TerminateProcess(piClient.hProcess, 1);
+						}
+					}
 				}
 				else
 				{
@@ -104,11 +110,12 @@ namespace Engine
 				}
 				setReturn(exitCode);
 
-
 				CloseHandle(piClient.hThread);
 				CloseHandle(piClient.hProcess);
-				DeleteProcThreadAttributeList(_In_ startupInfo.lpAttributeList);
-				free(startupInfo.lpAttributeList);
+				if (startupInfo.lpAttributeList != nullptr) {
+					DeleteProcThreadAttributeList(startupInfo.lpAttributeList);
+					free(startupInfo.lpAttributeList);
+				}
 			}
 
 			ClosePseudoConsole(con);
@@ -141,5 +148,13 @@ namespace Engine
 	void Term::onSlaveIsDown()
 	{
 		master->stop();
+	}
+	bool Term::isMasterUp()
+	{
+		if (master == nullptr) {
+			return false;
+		}
+
+		return master->isUp();
 	}
 }

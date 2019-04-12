@@ -16,6 +16,7 @@ namespace Engine
 		TerminalWindow();
 		void show();
 		void close();
+		bool isUp() const;
 
 		virtual void onMouseMoved(const POINT& pos);
 		virtual void onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount);
@@ -37,6 +38,7 @@ namespace Engine
 		float charWidth;
 		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);
 		SIZE sceneSize;
+		bool isWindowUp;
 
 		void loadFont(HRESULT& hr);
 		void calculateCharWidth();

@@ -12,6 +12,7 @@ namespace Engine
 		TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut);
 		void start();
 		void stop();
+		bool isUp() const;
 
 	private:
 		std::unique_ptr<TerminalWindow> terminalWindow;

@@ -30,13 +30,20 @@ namespace Engine
 
 	void TerminalWindow::show()
 	{
+		isWindowUp = true;
 		window.show();
 		MessagePipe::start();
+		isWindowUp = false;
 	}
 
 	void TerminalWindow::close()
 	{
 		window.close();
+	}
+
+	bool TerminalWindow::isUp() const
+	{
+		return isWindowUp;
 	}
 
 	void TerminalWindow::onMouseMoved(const POINT& pos)

@@ -155,6 +155,10 @@ namespace Controls
 			createAndRegisterClass();
 			createControl();
 		}
+		
+		if (hwnd == nullptr) {
+			throw exception("Window in incorrect state.");
+		}
 
 		ShowWindow(hwnd, mode);
 
