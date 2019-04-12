@@ -1,12 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.489
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Falcon", "Falcon\Falcon.vcxproj", "{33166757-9C28-4063-8EC9-7BDB743EF83D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BE13E701-8B13-4B43-A713-9907FB6F732D} = {BE13E701-8B13-4B43-A713-9907FB6F732D}
-		{06111ADE-1A86-4C77-975C-CC0429FFA60D} = {06111ADE-1A86-4C77-975C-CC0429FFA60D}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Falcon.UI", "Falcon.UI\Falcon.UI.vcxproj", "{06111ADE-1A86-4C77-975C-CC0429FFA60D}"

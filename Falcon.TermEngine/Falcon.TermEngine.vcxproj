@@ -102,6 +102,9 @@
     <PostBuildEvent>
       <Command>xcopy $(ProjectDir)Fonts\UbuntuMono-R.ttf $(OutDir)fonts\UbuntuMono-R.ttf* /Y</Command>
     </PostBuildEvent>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -186,6 +189,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Term.cpp" />
+    <ClCompile Include="TerminalMaster.cpp" />
+    <ClCompile Include="TerminalWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DWriteFontCollectionLoader.h" />
@@ -194,8 +199,11 @@
     <ClInclude Include="DxCommon.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Term.h" />
+    <ClInclude Include="TerminalMaster.h" />
+    <ClInclude Include="TerminalWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\UbuntuMono-R.ttf" />

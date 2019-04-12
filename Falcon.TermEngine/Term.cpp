@@ -1,135 +1,145 @@
 #include "pch.h"
 #include "Term.h"
-#include "DxCommon.h"
-#include "DWriteFontLoader.h"
-#pragma comment(lib, "dwrite")
+#include "../Falcon.UI/Control.h"
+#pragma comment(lib, "Falcon.UI.lib")
 
 namespace Engine
 {
 	using namespace Controls;
-	using namespace Fonts;
 	using namespace std;
-	wstring t;
 
-	Term::Term(Controls::TerminalCanvas* canvas)
-		: canvas(canvas),
-		charWidth(-1.f),
-		dWriteFactory(nullptr),
-		fgBrush(nullptr),
-		fontFace(nullptr),
-		fontFile(nullptr),
-		sceneSize({ 0,0 }),
-		textFormat(nullptr)
+	Term::Term(HINSTANCE hInstance) :		
+		master(nullptr)
 	{
-		canvas->registerInputListener(this);
-		canvas->registerRenderer(this);
+		Control::set_hInstance(hInstance);
 	}
 
-	void Term::onMouseMoved(const POINT& pos)
+	HRESULT Term::fillStartupInfo(STARTUPINFOEX *pStartupInfo, HPCON hPC)
 	{
-	}
+		HRESULT hr = E_UNEXPECTED;
 
-	void Term::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
-	{
-		if (key == '\b' && t.size()) {
-			t.pop_back();
-		}
-		else {
-			t += key;
-		}
-		canvas->render();
-	}
-
-	void Term::onMouseButtonDown(const POINT& pos, MouseButton button)
-	{
-		if (!canvas->hasFocus()) {
-			canvas->focus();
-		}
-	}
-
-	void Term::onMouseButtonUp(const POINT& pos, MouseButton button)
-	{
-	}
-
-	void Term::onRenderDxScene(ID2D1RenderTarget* target)
-	{
-		target->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f));
-
-		auto r = target->GetSize();
-		target->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
-		target->DrawText(
-			t.c_str(),
-			t.size(),
-			textFormat,
-			D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
-			fgBrush
-		);
-	}
-
-	void Term::onCreateDxResources(ID2D1RenderTarget * target)
-	{
-		HRESULT hr = DWriteCreateFactory(
-			DWRITE_FACTORY_TYPE_SHARED,
-			__uuidof(IDWriteFactory),
-			reinterpret_cast<IUnknown **>(&dWriteFactory)
-		);
-
-		loadFont(hr);
-		const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f);
-		target->CreateSolidColorBrush(color, &fgBrush);
-	}
-
-	void Term::loadFont(HRESULT& hr)
-	{
-		DWriteFontLoader fontLoader(dWriteFactory);
-		std::vector<std::wstring> filePaths;
-		wchar_t path[_MAX_PATH];
-		if (_wfullpath(path, L"fonts/UbuntuMono-R.ttf", _MAX_PATH))
+		if (pStartupInfo)
 		{
-			filePaths.push_back(wstring(path));
-			IDWriteFontCollection* collection;
-			hr = fontLoader.CreateFontCollection(filePaths, &collection);
-			hr = dWriteFactory->CreateTextFormat(
-				L"Ubuntu Mono",
-				collection,
-				DWRITE_FONT_WEIGHT_NORMAL,
-				DWRITE_FONT_STYLE_NORMAL,
-				DWRITE_FONT_STRETCH_NORMAL,
-				21,
-				L"",
-				&textFormat
-			);
-			SafeRelease(&collection);
-			calculateCharWidth();
+			SIZE_T attrListSize = 0;
+
+			pStartupInfo->StartupInfo.cb = sizeof(STARTUPINFOEX);
+			InitializeProcThreadAttributeList(nullptr, 1, 0, &attrListSize);
+			pStartupInfo->lpAttributeList = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(malloc(attrListSize));
+
+			if (pStartupInfo->lpAttributeList
+				&& InitializeProcThreadAttributeList(pStartupInfo->lpAttributeList, 1, 0, &attrListSize))
+			{
+				hr = UpdateProcThreadAttribute(
+					pStartupInfo->lpAttributeList,
+					0,
+					PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE,
+					hPC,
+					sizeof(HPCON),
+					nullptr,
+					nullptr) ? S_OK : HRESULT_FROM_WIN32(GetLastError());
+			}
+			else
+			{
+				hr = HRESULT_FROM_WIN32(GetLastError());
+			}
 		}
+		return hr;
 	}
 
-	void Term::onReleaseDxResources()
+	void Term::start(const wstring & command)
 	{
-		SafeRelease(&fgBrush);
-		SafeRelease(&fontFile);
-		SafeRelease(&fontFace);
-		SafeRelease(&textFormat);
-		SafeRelease(&dWriteFactory);
-	}
+		HRESULT hr = E_UNEXPECTED;
+		HANDLE pipePtyIn = INVALID_HANDLE_VALUE;
+		HANDLE pipePtyOut = INVALID_HANDLE_VALUE;
+		HANDLE pipeIn = INVALID_HANDLE_VALUE;
+		HANDLE pipeOut = INVALID_HANDLE_VALUE;
+		HPCON con;
 
-	int Term::onResizeScene(ResizeType type, const SIZE & size)
-	{
-		sceneSize = size;
-		return 0;
-	}
-
-	void Term::calculateCharWidth()
-	{
-		IDWriteTextLayout* textLayout;
-		HRESULT hr = dWriteFactory->CreateTextLayout(L"X", 1, textFormat, 100, 100, &textLayout);
-		if (SUCCEEDED(hr)) {
-			hr = textLayout->DetermineMinWidth(&charWidth);
-			if (FAILED(hr)) {
-				charWidth = -1.f;
+		if (!CreatePipe(&pipePtyIn, &pipeOut, nullptr, 0) ||
+			!CreatePipe(&pipeIn, &pipePtyOut, nullptr, 0))
+		{
+			setReturn(1);
+		}
+		else
+		{
+			hr = CreatePseudoConsole({ 100, 100 }, pipePtyIn, pipePtyOut, 0, &con);
+			if (pipePtyOut != INVALID_HANDLE_VALUE) {
+				CloseHandle(pipePtyOut);
+			}
+			if (pipePtyIn != INVALID_HANDLE_VALUE) {
+				CloseHandle(pipePtyIn);
 			}
 
-			SafeRelease(&textLayout);
+			STARTUPINFOEX startupInfo{};
+			if (S_OK == fillStartupInfo(&startupInfo, con))
+			{
+				auto cmd = unique_ptr<wchar_t>(new wchar_t[command.size() + 1]);
+				wcscpy_s(cmd.get(), command.size() + 1, command.c_str());
+				PROCESS_INFORMATION piClient{};
+				hr = CreateProcess(
+					nullptr,
+					cmd.get(),
+					nullptr,
+					nullptr,
+					false,
+					EXTENDED_STARTUPINFO_PRESENT,
+					nullptr,
+					nullptr,
+					&startupInfo.StartupInfo,
+					&piClient) ? S_OK : GetLastError();
+
+				if (S_OK == hr)
+				{
+					onSlaveIsUp(&piClient, pipeIn, pipeOut);
+					WaitForSingleObject(piClient.hThread, INFINITE);
+				}
+				else
+				{
+					setReturn(2);
+				}
+
+				DWORD exitCode;
+				if (!GetExitCodeProcess(piClient.hProcess, &exitCode)) {
+					exitCode = -1;
+				}
+				setReturn(exitCode);
+
+
+				CloseHandle(piClient.hThread);
+				CloseHandle(piClient.hProcess);
+				DeleteProcThreadAttributeList(_In_ startupInfo.lpAttributeList);
+				free(startupInfo.lpAttributeList);
+			}
+
+			ClosePseudoConsole(con);
+			if (pipeOut != INVALID_HANDLE_VALUE) {
+				CloseHandle(pipeOut);
+			}
+			if (pipeIn != INVALID_HANDLE_VALUE) {
+				CloseHandle(pipeIn);
+			}
+			onSlaveIsDown();
 		}
+	}
+
+	int Term::getReturnValue() const
+	{
+		return retVal;
+	}
+
+	void Term::setReturn(int value)
+	{
+		retVal = value;
+	}
+
+	void Term::onSlaveIsUp(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut)
+	{
+		master = make_unique<TerminalMaster>(slave, pipeIn, pipeOut);
+		master->start();
+	}
+
+	void Term::onSlaveIsDown()
+	{
+		master->stop();
 	}
 }

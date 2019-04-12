@@ -29,6 +29,12 @@
     <ClCompile Include="DWriteFontLoader.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="TerminalMaster.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerminalWindow.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h">
@@ -53,6 +59,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="DWriteFontLoader.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerminalMaster.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerminalWindow.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

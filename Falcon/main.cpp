@@ -1,25 +1,18 @@
 #include "pch.h"
-#pragma comment(lib, "Falcon.UI.lib")
 #pragma comment(lib, "Falcon.TermEngine.lib")
-#include "../Falcon.UI/MessagePipe.h"
-#include "../Falcon.UI/MainWindow.h"
-#include "../Falcon.UI/TerminalCanvas.h"
 #include "../Falcon.TermEngine/Term.h"
-#include "main.h"
 
-using namespace Messages;
-using namespace Controls;
 using namespace Engine;
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCmdLine, _In_ int nCmdShow)
 {
-	Control::set_hInstance(hInstance);
-	MainWindow window(L"Falcon");
-	TerminalCanvas canvas;
-	window.addChild(canvas, true);
-	Term term(&canvas);
-	window.show();
-
-	MessagePipe::start();
-	return 0;
+	Term term(hInstance);
+	wchar_t *startCommand;
+	size_t size;
+	if (_wdupenv_s(&startCommand, &size, L"ComSpec") != 0 || startCommand == nullptr) {
+		return 1;
+	}
+	term.start(startCommand);
+	delete startCommand;
+	return term.getReturnValue();
 }

@@ -167,6 +167,11 @@ namespace Controls
 		}
 	}
 
+	void Control::close()
+	{
+		SendMessage(hwnd, WM_DESTROY, 0, 0);
+	}
+
 	void Control::focus()
 	{
 		SetFocus(hwnd);

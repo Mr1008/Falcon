@@ -29,6 +29,7 @@ namespace Controls
 
 		void addChild(Control& child, bool defaultFocus = false);
 		void show(int mode = SW_SHOWNORMAL);
+		void close();
 		void focus();
 		bool hasFocus();
 		void registerInputListener(InputListener* listener);
