@@ -15,9 +15,9 @@ namespace Engine
 		int retVal;
 		std::unique_ptr<TerminalMaster> master;
 
-		HRESULT fillStartupInfo(STARTUPINFOEX* pStartupInfo, HPCON hPC);
+		HRESULT fillStartupInfo(STARTUPINFOEX* startupInfo, HPCON con);
 		void setReturn(int retVal);
-		void onSlaveIsUp(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut);
+		void onSlaveIsUp(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut, HPCON con);
 		void onSlaveIsDown();
 		bool isMasterUp();
 	};

@@ -5,7 +5,8 @@ namespace Engine
 {
 	using namespace std;
 
-	TerminalMaster::TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut) :
+	TerminalMaster::TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut, HPCON con) :
+		con(con),
 		slave(slave),
 		pipeIn(pipeIn),
 		pipeOut(pipeOut),
@@ -31,7 +32,8 @@ namespace Engine
 	{
 		windowThread = make_unique<thread>(
 			[this]() {
-				terminalWindow = make_unique<TerminalWindow>();
+				terminalWindow = make_unique<TerminalWindowController>();
+				terminalWindow->registerTerminalWindowListener(this);
 				terminalWindow->show();
 			});
 
@@ -54,6 +56,11 @@ namespace Engine
 		}
 
 		return terminalWindow->isUp();
+	}
+
+	void TerminalMaster::onWindowResize(const COORD& size)
+	{
+		ResizePseudoConsole(con, size);
 	}
 
 	void TerminalMaster::onSlaveInput(char* buffer, size_t bufferSize)

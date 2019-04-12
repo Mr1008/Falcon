@@ -15,26 +15,26 @@ namespace Engine
 		Control::set_hInstance(hInstance);
 	}
 
-	HRESULT Term::fillStartupInfo(STARTUPINFOEX* pStartupInfo, HPCON hPC)
+	HRESULT Term::fillStartupInfo(STARTUPINFOEX* startupInfo, HPCON con)
 	{
 		HRESULT hr = E_UNEXPECTED;
 
-		if (pStartupInfo)
+		if (startupInfo)
 		{
 			SIZE_T attrListSize = 0;
 
-			pStartupInfo->StartupInfo.cb = sizeof(STARTUPINFOEX);
+			startupInfo->StartupInfo.cb = sizeof(STARTUPINFOEX);
 			InitializeProcThreadAttributeList(nullptr, 1, 0, &attrListSize);
-			pStartupInfo->lpAttributeList = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(malloc(attrListSize));
+			startupInfo->lpAttributeList = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(malloc(attrListSize));
 
-			if (pStartupInfo->lpAttributeList
-				&& InitializeProcThreadAttributeList(pStartupInfo->lpAttributeList, 1, 0, &attrListSize))
+			if (startupInfo->lpAttributeList
+				&& InitializeProcThreadAttributeList(startupInfo->lpAttributeList, 1, 0, &attrListSize))
 			{
 				hr = UpdateProcThreadAttribute(
-					pStartupInfo->lpAttributeList,
+					startupInfo->lpAttributeList,
 					0,
 					PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE,
-					hPC,
+					con,
 					sizeof(HPCON),
 					nullptr,
 					nullptr) ? S_OK : HRESULT_FROM_WIN32(GetLastError());
@@ -91,7 +91,7 @@ namespace Engine
 
 				if (S_OK == hr)
 				{
-					onSlaveIsUp(&piClient, pipeIn, pipeOut);
+					onSlaveIsUp(&piClient, pipeIn, pipeOut, con);
 					while (WaitForSingleObject(piClient.hThread, 1000) == WAIT_TIMEOUT)
 					{
 						if (!isMasterUp()) {
@@ -139,9 +139,9 @@ namespace Engine
 		retVal = value;
 	}
 
-	void Term::onSlaveIsUp(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut)
+	void Term::onSlaveIsUp(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut, HPCON con)
 	{
-		master = make_unique<TerminalMaster>(slave, pipeIn, pipeOut);
+		master = make_unique<TerminalMaster>(slave, pipeIn, pipeOut, con);
 		master->start();
 	}
 

@@ -22,6 +22,7 @@ namespace Controls
 			const std::wstring& className,
 			const std::wstring& title,
 			DWORD style,
+			DWORD exStyle = 0,
 			int x = CW_USEDEFAULT,
 			int y = CW_USEDEFAULT,
 			int width = CW_USEDEFAULT,
@@ -37,6 +38,7 @@ namespace Controls
 		static void set_hInstance(HINSTANCE hInstance);
 
 		virtual int onCreate();
+		virtual void onCreated();
 		virtual int onPaint(HDC hdc, PAINTSTRUCT* ps);
 		virtual int onDestroy();
 		virtual int onResize(ResizeType type, const SIZE& size);
@@ -60,6 +62,7 @@ namespace Controls
 		Control* defaultChild;
 		std::wstring title;
 		DWORD style;
+		DWORD exStyle;
 		POINT pos;
 		SIZE size;
 		std::vector<InputListener*> inputListeners;

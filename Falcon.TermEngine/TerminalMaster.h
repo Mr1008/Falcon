@@ -2,21 +2,26 @@
 #include "pch.h"
 #include <memory>
 #include <thread>
-#include "TerminalWindow.h"
+#include "TerminalWindowController.h"
+#include "TerminalWindowListener.h"
 
 namespace Engine
 {
-	class TerminalMaster
+	class TerminalMaster :
+		public TerminalWindowListener
 	{
 	public:
-		TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut);
+		TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut, HPCON con);
 		void start();
 		void stop();
 		bool isUp() const;
 
+		virtual void onWindowResize(const COORD& size);
+
 	private:
-		std::unique_ptr<TerminalWindow> terminalWindow;
+		std::unique_ptr<TerminalWindowController> terminalWindow;
 		PROCESS_INFORMATION* slave;
+		HPCON con;
 		HANDLE pipeIn;
 		HANDLE pipeOut;
 		std::unique_ptr<std::thread> pipeListenerThread;

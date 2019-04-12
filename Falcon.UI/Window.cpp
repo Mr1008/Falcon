@@ -10,7 +10,7 @@ namespace Controls
 		int y,
 		int width,
 		int height
-	) : Control(windowClass, title, WS_OVERLAPPEDWINDOW, x, y, width, height)
+	) : Control(windowClass, title, WS_OVERLAPPEDWINDOW, 0, x, y, width, height)
 	{
 	}
 

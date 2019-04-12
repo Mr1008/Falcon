@@ -4,11 +4,12 @@
 namespace Controls
 {
 	TerminalCanvas::TerminalCanvas()
-		: Direct2DCanvas(L"HwAcceleratedTerminal")
+		: Direct2DCanvas(L"HwAcceleratedTerminal"),
+		renderer(nullptr)
 	{
 	}
 
-	void TerminalCanvas::registerRenderer(TerminalRenderer * renderer)
+	void TerminalCanvas::registerRenderer(TerminalRenderer* renderer)
 	{
 		this->renderer = renderer;
 	}
@@ -18,38 +19,36 @@ namespace Controls
 		forceRender();
 	}
 
-	void TerminalCanvas::onRenderDxScene(ID2D1RenderTarget *target)
+	void TerminalCanvas::onRenderDxScene(ID2D1RenderTarget* target)
 	{
-		if (renderer) {
-			renderer->onRenderDxScene(target);
-		}
+		notifyRenderer([&](TerminalRenderer * r) {r->onRenderDxScene(target); });
 	}
 
-	void TerminalCanvas::onCreateDxResources(ID2D1RenderTarget *target)
+	void TerminalCanvas::onCreateDxResources(ID2D1RenderTarget* target)
 	{
-		if (renderer) {
-			renderer->onCreateDxResources(target);
-		}
+		notifyRenderer([&](TerminalRenderer * r) {r->onCreateDxResources(target); });
 	}
 
 	void TerminalCanvas::onReleaseDxResources()
 	{
 		Direct2DCanvas::onReleaseDxResources();
-
-		if (renderer) {
-			renderer->onReleaseDxResources();
-		}
+		notifyRenderer([&](TerminalRenderer * r) {r->onReleaseDxResources(); });
 	}
 
-	int TerminalCanvas::onResize(ResizeType type, const SIZE &size)
+	int TerminalCanvas::onResize(ResizeType type, const SIZE& size)
 	{
 		int ret = Direct2DCanvas::onResize(type, size);
 		if (ret) return ret;
 
-		if (renderer) {
-			return renderer->onResizeScene(type, size);
-		}
+		notifyRenderer([&](TerminalRenderer * r) {r->onResizeScene(type, size); });
 
 		return 0;
+	}
+
+	void TerminalCanvas::notifyRenderer(std::function<void(TerminalRenderer*)> fn)
+	{
+		if (renderer != nullptr) {
+			fn(renderer);
+		}
 	}
 }

@@ -5,8 +5,16 @@ namespace Controls
 {
 	using namespace std;
 
+	Direct2DCanvas::Direct2DCanvas(const std::wstring &className) :
+		Control(className, L"", WS_CHILD | WS_VISIBLE, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT),
+		factory(nullptr),
+		renderTarget(nullptr)
+	{
+		hasCustomPaint = true;
+	}
+
 	template <class T>
-	void Direct2DCanvas::releaseDxResource(T **ppT)
+	void Direct2DCanvas::releaseDxResource(T** ppT)
 	{
 		if (*ppT)
 		{
@@ -15,19 +23,18 @@ namespace Controls
 		}
 	}
 
-	Direct2DCanvas::Direct2DCanvas(const std::wstring &className)
-		: Control(className, L"", WS_CHILD | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT)
-	{
-		hasCustomPaint = true;
-	}
-
 	int Direct2DCanvas::onCreate()
 	{
-		if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)))
+		if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &factory)))
 		{
 			return -1;
 		}
-		return 0;
+		return Control::onCreate();
+	}
+
+	void Direct2DCanvas::onCreated() 
+	{
+		Control::onCreated();
 	}
 
 	int Direct2DCanvas::onPaint(HDC hdi, PAINTSTRUCT *ps)
@@ -35,9 +42,9 @@ namespace Controls
 		HRESULT hr = createGraphicsResources(&ps->rcPaint);
 		if (SUCCEEDED(hr))
 		{
-			pRenderTarget->BeginDraw();
-			onRenderDxScene(pRenderTarget);
-			hr = pRenderTarget->EndDraw();
+			renderTarget->BeginDraw();
+			onRenderDxScene(renderTarget);
+			hr = renderTarget->EndDraw();
 			if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
 			{
 				onReleaseDxResources();
@@ -55,10 +62,10 @@ namespace Controls
 	int Direct2DCanvas::onResize(ResizeType type, const SIZE &size)
 	{
 		setControlPosAndSize(nullptr, &size);
-		if (pRenderTarget)
+		if (renderTarget)
 		{
 			D2D1_SIZE_U d2size = D2D1::SizeU(size.cx, size.cy);
-			pRenderTarget->Resize(d2size);
+			renderTarget->Resize(d2size);
 			forceRender();
 		}
 		return 0;
@@ -66,26 +73,26 @@ namespace Controls
 
 	void Direct2DCanvas::onReleaseDxResources()
 	{
-		releaseDxResource(&pRenderTarget);
-		releaseDxResource(&pFactory);
+		releaseDxResource(&renderTarget);
+		releaseDxResource(&factory);
 	}
 
 
 	HRESULT Direct2DCanvas::createGraphicsResources(RECT *rect)
 	{
 		HRESULT hr = S_OK;
-		if (pRenderTarget == nullptr)
+		if (renderTarget == nullptr)
 		{
 			D2D1_SIZE_U size = D2D1::SizeU(rect->right, rect->bottom);
 
-			hr = pFactory->CreateHwndRenderTarget(
+			hr = factory->CreateHwndRenderTarget(
 				D2D1::RenderTargetProperties(),
 				D2D1::HwndRenderTargetProperties(getHwnd(), size),
-				&pRenderTarget);
+				&renderTarget);
 
 			if (SUCCEEDED(hr))
 			{
-				onCreateDxResources(pRenderTarget);
+				onCreateDxResources(renderTarget);
 			}
 		}
 		return hr;

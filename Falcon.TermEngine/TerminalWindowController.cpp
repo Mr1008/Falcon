@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TerminalWindow.h"
+#include "TerminalWindowController.h"
 #include "../Falcon.UI/MessagePipe.h"
 #include "DxCommon.h"
 #include "DWriteFontLoader.h"
@@ -12,8 +12,8 @@ namespace Engine
 	using namespace Controls;
 	using namespace Fonts;
 	using namespace Messages;
-	 
-	TerminalWindow::TerminalWindow() :
+
+	TerminalWindowController::TerminalWindowController() :
 		window(L"Falcon"),
 		charWidth(-1.f),
 		dWriteFactory(nullptr),
@@ -22,14 +22,15 @@ namespace Engine
 		fontFile(nullptr),
 		sceneSize({ 0,0 }),
 		textFormat(nullptr),
-		isWindowUp(false)
+		isWindowUp(false),
+		listener(nullptr)
 	{
 		window.addChild(canvas, true);
 		canvas.registerInputListener(this);
 		canvas.registerRenderer(this);
 	}
 
-	void TerminalWindow::show()
+	void TerminalWindowController::show()
 	{
 		isWindowUp = true;
 		window.show();
@@ -37,37 +38,42 @@ namespace Engine
 		isWindowUp = false;
 	}
 
-	void TerminalWindow::close()
+	void TerminalWindowController::close()
 	{
 		window.close();
 	}
 
-	bool TerminalWindow::isUp() const
+	bool TerminalWindowController::isUp() const
 	{
 		return isWindowUp;
 	}
 
-	void TerminalWindow::onMouseMoved(const POINT& pos)
+	void TerminalWindowController::registerTerminalWindowListener(TerminalWindowListener* listener)
+	{
+		this->listener = listener;
+	}
+
+	void TerminalWindowController::onMouseMoved(const POINT& pos)
 	{
 	}
 
-	void TerminalWindow::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
+	void TerminalWindowController::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
 	{
-		
+
 	}
 
-	void TerminalWindow::onMouseButtonDown(const POINT& pos, MouseButton button)
+	void TerminalWindowController::onMouseButtonDown(const POINT& pos, MouseButton button)
 	{
 		if (!canvas.hasFocus()) {
 			canvas.focus();
 		}
 	}
 
-	void TerminalWindow::onMouseButtonUp(const POINT& pos, MouseButton button)
+	void TerminalWindowController::onMouseButtonUp(const POINT& pos, MouseButton button)
 	{
 	}
 
-	void TerminalWindow::onRenderDxScene(ID2D1RenderTarget* target)
+	void TerminalWindowController::onRenderDxScene(ID2D1RenderTarget* target)
 	{
 		target->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f));
 
@@ -82,7 +88,7 @@ namespace Engine
 		);
 	}
 
-	void TerminalWindow::onCreateDxResources(ID2D1RenderTarget * target)
+	void TerminalWindowController::onCreateDxResources(ID2D1RenderTarget * target)
 	{
 		HRESULT hr = DWriteCreateFactory(
 			DWRITE_FACTORY_TYPE_SHARED,
@@ -95,7 +101,7 @@ namespace Engine
 		target->CreateSolidColorBrush(color, &fgBrush);
 	}
 
-	void TerminalWindow::loadFont(HRESULT & hr)
+	void TerminalWindowController::loadFont(HRESULT & hr)
 	{
 		DWriteFontLoader fontLoader(dWriteFactory);
 		std::vector<std::wstring> filePaths;
@@ -120,7 +126,7 @@ namespace Engine
 		}
 	}
 
-	void TerminalWindow::onReleaseDxResources()
+	void TerminalWindowController::onReleaseDxResources()
 	{
 		SafeRelease(&fgBrush);
 		SafeRelease(&fontFile);
@@ -129,13 +135,14 @@ namespace Engine
 		SafeRelease(&dWriteFactory);
 	}
 
-	int TerminalWindow::onResizeScene(ResizeType type, const SIZE & size)
+	int TerminalWindowController::onResizeScene(ResizeType type, const SIZE & size)
 	{
 		sceneSize = size;
+		notifyListener([&](TerminalWindowListener * listener) {listener->onWindowResize(countSizeInCharacters(size)); });
 		return 0;
 	}
 
-	void TerminalWindow::calculateCharWidth()
+	void TerminalWindowController::calculateCharWidth()
 	{
 		IDWriteTextLayout* textLayout;
 		HRESULT hr = dWriteFactory->CreateTextLayout(L"X", 1, textFormat, 100, 100, &textLayout);
@@ -147,5 +154,18 @@ namespace Engine
 
 			SafeRelease(&textLayout);
 		}
+	}
+	void TerminalWindowController::notifyListener(std::function<void(TerminalWindowListener*)> fn)
+	{
+		if (listener != nullptr) {
+			fn(listener);
+		}
+	}
+	COORD TerminalWindowController::countSizeInCharacters(SIZE sizeInPx)
+	{
+		return {
+			(short)sizeInPx.cx / 20,
+			(short)sizeInPx.cy / 20
+		};
 	}
 }

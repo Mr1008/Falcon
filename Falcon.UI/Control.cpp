@@ -126,10 +126,11 @@ namespace Controls
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
-	Control::Control(const std::wstring & className, const std::wstring & title, DWORD style, int x, int y, int width, int height) :
+	Control::Control(const std::wstring & className, const std::wstring & title, DWORD style, DWORD exStyle, int x, int y, int width, int height) :
 		className(className),
 		title(title),
 		style(style),
+		exStyle(exStyle),
 		pos({ x, y }),
 		size({ width, height }),
 		defaultChild(nullptr),
@@ -199,6 +200,10 @@ namespace Controls
 	int Control::onCreate()
 	{
 		return 0;
+	}
+
+	void Control::onCreated()
+	{
 	}
 
 	int Control::onPaint(HDC hdc, PAINTSTRUCT * ps)
@@ -271,7 +276,7 @@ namespace Controls
 			if (size.cy == CW_DEFAULT) size.cy = parent->size.cy;
 		}
 		hwnd = CreateWindowEx(
-			0,
+			exStyle,
 			className.c_str(),
 			title.c_str(),
 			style,
@@ -284,6 +289,8 @@ namespace Controls
 
 		if (hwnd == nullptr)
 			throw std::exception("Could not create window");
+
+		onCreated();
 	}
 
 	void Control::forEachInputListener(std::function<void(InputListener*)> fn)

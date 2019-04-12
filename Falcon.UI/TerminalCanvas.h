@@ -1,6 +1,7 @@
 #pragma once
 #include "Direct2DCanvas.h"
 #include "TerminalRenderer.h"
+#include <functional>
 
 namespace Controls
 {
@@ -19,5 +20,6 @@ namespace Controls
 		virtual int onResize(ResizeType type, const SIZE &size);
 	private:
 		TerminalRenderer *renderer;
+		void notifyRenderer(std::function<void(TerminalRenderer*)> fn);
 	};
 }

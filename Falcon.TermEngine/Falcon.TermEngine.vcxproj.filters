@@ -32,7 +32,10 @@
     <ClCompile Include="TerminalMaster.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="TerminalWindow.cpp">
+    <ClCompile Include="TerminalWindowListener.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerminalWindowController.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -67,7 +70,10 @@
     <ClInclude Include="TerminalMaster.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="TerminalWindow.h">
+    <ClInclude Include="TerminalWindowListener.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerminalWindowController.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,6 +3,7 @@
 #include <d2d1.h>
 #pragma comment(lib, "d2d1")
 
+
 namespace Controls {
 	class Direct2DCanvas :
 		public Control
@@ -12,6 +13,7 @@ namespace Controls {
 			const std::wstring &className);
 
 		virtual int onCreate();
+		virtual void onCreated();
 		virtual int onPaint(HDC hdi, PAINTSTRUCT *ps);
 		virtual int onDestroy();
 		virtual int onResize(ResizeType type, const SIZE &size);
@@ -24,8 +26,8 @@ namespace Controls {
 		void releaseDxResource(T **ppT);
 
 	private:
-		ID2D1Factory *pFactory;
-		ID2D1HwndRenderTarget *pRenderTarget;
+		ID2D1Factory *factory;
+		ID2D1HwndRenderTarget *renderTarget;
 
 		HRESULT createGraphicsResources(RECT *rect);
 	};

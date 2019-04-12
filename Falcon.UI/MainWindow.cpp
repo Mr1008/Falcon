@@ -3,7 +3,7 @@
 
 namespace Controls
 {
-	int MainWindow::onPaint(HDC hdc, PAINTSTRUCT *ps)
+	int MainWindow::onPaint(HDC hdc, PAINTSTRUCT* ps)
 	{
 		FillRect(hdc, &ps->rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
 		return 0;
