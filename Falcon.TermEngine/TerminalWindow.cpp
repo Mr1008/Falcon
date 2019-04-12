@@ -21,7 +21,8 @@ namespace Engine
 		fontFace(nullptr),
 		fontFile(nullptr),
 		sceneSize({ 0,0 }),
-		textFormat(nullptr)
+		textFormat(nullptr),
+		isWindowUp(false)
 	{
 		window.addChild(canvas, true);
 		canvas.registerInputListener(this);
