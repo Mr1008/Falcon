@@ -23,15 +23,12 @@ namespace Controls
 		case WM_DESTROY:
 			return view->onDestroy();
 		case WM_PAINT:
-			if (view->hasCustomPaint) {
-				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(hwnd, &ps);
-				int result = view->onPaint(hdc, &ps);
-				EndPaint(hwnd, &ps);
-				return result;
-			}
-			break;
-
+		{
+			if (view->supportsGDIPainting)
+				return view->onPaint();
+			else
+				break;
+		}
 		case WM_SIZE:
 		{
 			ResizeType type = ResizeType::Unknown;
@@ -58,7 +55,7 @@ namespace Controls
 		case WM_MOUSEMOVE:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener * l) {
+			view->notifyListeners([&pos](InputListener * l) {
 				l->onMouseMoved(pos);
 				});
 			return 0;
@@ -66,7 +63,7 @@ namespace Controls
 		case WM_LBUTTONDOWN:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener * l) {
+			view->notifyListeners([&pos](InputListener * l) {
 				l->onMouseButtonDown(pos, MouseButton::Left);
 				});
 			return 0;
@@ -74,7 +71,7 @@ namespace Controls
 		case WM_LBUTTONUP:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener * l) {
+			view->notifyListeners([&pos](InputListener * l) {
 				l->onMouseButtonUp(pos, MouseButton::Left);
 				});
 			return 0;
@@ -82,7 +79,7 @@ namespace Controls
 		case WM_MBUTTONDOWN:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener * l) {
+			view->notifyListeners([&pos](InputListener * l) {
 				l->onMouseButtonDown(pos, MouseButton::Middle);
 				});
 			return 0;
@@ -90,7 +87,7 @@ namespace Controls
 		case WM_MBUTTONUP:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener * l) {
+			view->notifyListeners([&pos](InputListener * l) {
 				l->onMouseButtonUp(pos, MouseButton::Middle);
 				});
 			return 0;
@@ -98,7 +95,7 @@ namespace Controls
 		case WM_RBUTTONDOWN:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener * l) {
+			view->notifyListeners([&pos](InputListener * l) {
 				l->onMouseButtonDown(pos, MouseButton::Right);
 				});
 			return 0;
@@ -106,7 +103,7 @@ namespace Controls
 		case WM_RBUTTONUP:
 		{
 			POINT pos = { LOWORD(lParam), HIWORD(lParam) };
-			view->forEachInputListener([&pos](InputListener * l) {
+			view->notifyListeners([&pos](InputListener * l) {
 				l->onMouseButtonUp(pos, MouseButton::Right);
 				});
 			return 0;
@@ -116,7 +113,7 @@ namespace Controls
 			wchar_t key = static_cast<wchar_t>(wParam);
 			bool firstOccurence = !(lParam & 1 << 30);
 			unsigned int repeatCount = lParam & 0xffff;
-			view->forEachInputListener([key, firstOccurence, repeatCount](InputListener * l) {
+			view->notifyListeners([key, firstOccurence, repeatCount](InputListener * l) {
 				l->onKeyPushed(key, firstOccurence, repeatCount);
 				});
 			return 0;
@@ -134,7 +131,8 @@ namespace Controls
 		pos({ x, y }),
 		size({ width, height }),
 		defaultChild(nullptr),
-		parent(nullptr)
+		parent(nullptr),
+		supportsGDIPainting(false)
 	{
 	}
 
@@ -156,7 +154,7 @@ namespace Controls
 			createAndRegisterClass();
 			createControl();
 		}
-		
+
 		if (hwnd == nullptr) {
 			throw exception("Window in incorrect state.");
 		}
@@ -187,14 +185,19 @@ namespace Controls
 		return GetFocus() == hwnd;
 	}
 
-	void Control::registerInputListener(InputListener * listener)
-	{
-		inputListeners.push_back(listener);
-	}
-
 	void Control::set_hInstance(HINSTANCE hInstance)
 	{
 		Control::hInstance = hInstance;
+	}
+
+	void Control::registerInputListener(InputListener * inputListener)
+	{
+		registerListener(inputListener);
+	}
+
+	void Control::unregisterInputListener(InputListener * inputListener)
+	{
+		unregisterListener(inputListener);
 	}
 
 	int Control::onCreate()
@@ -206,7 +209,7 @@ namespace Controls
 	{
 	}
 
-	int Control::onPaint(HDC hdc, PAINTSTRUCT * ps)
+	int Control::onPaint()
 	{
 		return 0;
 	}
@@ -247,12 +250,19 @@ namespace Controls
 		InvalidateRect(hwnd, rect, false);
 	}
 
-	const SIZE& Control::getSize() const
+	const SIZE Control::getSize() const
 	{
 		return size;
 	}
 
-	const POINT& Control::getPos() const
+	const RECT Control::getClientRect() const
+	{
+		RECT rect = {};
+		GetClientRect(hwnd, &rect);
+		return rect;
+	}
+
+	const POINT Control::getPos() const
 	{
 		return pos;
 	}
@@ -291,12 +301,5 @@ namespace Controls
 			throw std::exception("Could not create window");
 
 		onCreated();
-	}
-
-	void Control::forEachInputListener(std::function<void(InputListener*)> fn)
-	{
-		for (auto listener : inputListeners) {
-			fn(listener);
-		}
 	}
 }

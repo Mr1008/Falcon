@@ -4,7 +4,6 @@
 #include "../Falcon.UI/InputListener.h"
 #include "../Falcon.UI/TerminalRenderer.h"
 #include "../Falcon.UI/MainWindow.h"
-#include "../Falcon.UI/TerminalCanvas.h"
 #include "TerminalWindowListener.h"
 
 namespace Engine
@@ -24,14 +23,12 @@ namespace Engine
 		virtual void onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount);
 		virtual void onMouseButtonDown(const POINT& pos, Controls::MouseButton button);
 		virtual void onMouseButtonUp(const POINT& pos, Controls::MouseButton button);
-		virtual void onRenderDxScene(ID2D1RenderTarget* target);
-		virtual void onCreateDxResources(ID2D1RenderTarget* target);
+		virtual void onCreateDxResources(ID2D1DeviceContext* dc);
 		virtual void onReleaseDxResources();
 		virtual int onResizeScene(Controls::ResizeType type, const SIZE& size);
 
 	private:
 		Controls::MainWindow window;
-		Controls::TerminalCanvas canvas;
 		TerminalWindowListener* listener;
 		ID2D1SolidColorBrush* fgBrush;
 		IDWriteTextFormat* textFormat;

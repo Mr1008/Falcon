@@ -1,10 +1,10 @@
 #pragma once
-#include "Window.h"
+#include "DirectXWindow.h"
 
 namespace Controls
 {
 	class MainWindow :
-		public Window
+		public DirectXWindow
 	{
 	public:
 		MainWindow(
@@ -13,12 +13,10 @@ namespace Controls
 			int y = CW_USEDEFAULT,
 			int width = CW_USEDEFAULT,
 			int height = CW_USEDEFAULT
-		): Window(title, L"MainWindowViewClass", x, y, width, height) 
+		): DirectXWindow(title, L"MainWindowViewClass", x, y, width, height)
 		{
-			hasCustomPaint = true;
 		}
 
-		virtual int onPaint(HDC hdc, PAINTSTRUCT *ps);
 		virtual int onDestroy();
 	};
 }

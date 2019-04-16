@@ -9,12 +9,12 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Resource files">
+      <UniqueIdentifier>{1ac1a058-3542-4dc3-ae0e-2db23e72c128}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Control.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct2DCanvas.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="MainWindow.cpp">
@@ -26,18 +26,12 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="TerminalCanvas.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
+    <ClCompile Include="DirectXWindow.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Control.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct2DCanvas.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="MainWindow.h">
@@ -49,12 +43,6 @@
     <ClInclude Include="pch.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="TerminalCanvas.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="Window.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="InputListener.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -62,6 +50,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Mouse.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXWindow.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

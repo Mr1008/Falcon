@@ -3,6 +3,7 @@
 #include "InputListener.h"
 #include <vector>
 #include <functional>
+#include "../Falcon.Shared/Publisher.h"
 
 namespace Controls
 {
@@ -16,6 +17,7 @@ namespace Controls
 	};
 
 	class Control
+		: private Shared::Publisher<InputListener>
 	{
 	public:
 		Control(
@@ -33,26 +35,28 @@ namespace Controls
 		void close();
 		void focus();
 		bool hasFocus();
-		void registerInputListener(InputListener* listener);
 		HWND getHwnd() const { return hwnd; }
 		static void set_hInstance(HINSTANCE hInstance);
+		void registerInputListener(InputListener* inputListener);
+		void unregisterInputListener(InputListener* inputListener);
 
 		virtual int onCreate();
 		virtual void onCreated();
-		virtual int onPaint(HDC hdc, PAINTSTRUCT* ps);
+		virtual int onPaint();
 		virtual int onDestroy();
 		virtual int onResize(ResizeType type, const SIZE& size);
 
 		friend LRESULT CALLBACK OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	protected:
-		bool hasCustomPaint = false;
 		std::vector<Control*> children;
+		bool supportsGDIPainting;
 
 		void setControlPosAndSize(POINT* pos, const SIZE* size);
 		void forceRender(const RECT* rect = nullptr);
-		const SIZE& getSize() const;
-		const POINT& getPos() const;
+		const SIZE getSize() const;
+		const RECT getClientRect() const;
+		const POINT getPos() const;
 
 	private:
 		HWND hwnd = nullptr;
@@ -65,12 +69,9 @@ namespace Controls
 		DWORD exStyle;
 		POINT pos;
 		SIZE size;
-		std::vector<InputListener*> inputListeners;
-
 
 		void setParent(Control* parent);
 		void createAndRegisterClass();
 		void createControl();
-		void forEachInputListener(std::function<void(InputListener*)> fn);
 	};
 }

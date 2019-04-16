@@ -25,9 +25,8 @@ namespace Engine
 		isWindowUp(false),
 		listener(nullptr)
 	{
-		window.addChild(canvas, true);
-		canvas.registerInputListener(this);
-		canvas.registerRenderer(this);
+		window.registerInputListener(this);
+		window.registerTerminalRenderer(this);
 	}
 
 	void TerminalWindowController::show()
@@ -55,40 +54,37 @@ namespace Engine
 
 	void TerminalWindowController::onMouseMoved(const POINT& pos)
 	{
+		window.render(
+			[this](ID2D1DeviceContext * dc) 
+			{
+				dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.7f));
+
+				auto r = dc->GetSize();
+				dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
+				dc->DrawText(
+					L"TEST",
+					4,
+					textFormat,
+					D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
+					fgBrush
+				);
+			}
+		);
 	}
 
 	void TerminalWindowController::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
 	{
-
 	}
 
 	void TerminalWindowController::onMouseButtonDown(const POINT& pos, MouseButton button)
 	{
-		if (!canvas.hasFocus()) {
-			canvas.focus();
-		}
 	}
 
 	void TerminalWindowController::onMouseButtonUp(const POINT& pos, MouseButton button)
 	{
 	}
 
-	void TerminalWindowController::onRenderDxScene(ID2D1RenderTarget* target)
-	{
-		target->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f));
-
-		auto r = target->GetSize();
-		target->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
-		target->DrawText(
-			L"TEST",
-			4,
-			textFormat,
-			D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
-			fgBrush
-		);
-	}
-
-	void TerminalWindowController::onCreateDxResources(ID2D1RenderTarget * target)
+	void TerminalWindowController::onCreateDxResources(ID2D1DeviceContext * dc)
 	{
 		HRESULT hr = DWriteCreateFactory(
 			DWRITE_FACTORY_TYPE_SHARED,
@@ -98,7 +94,7 @@ namespace Engine
 
 		loadFont(hr);
 		const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f);
-		target->CreateSolidColorBrush(color, &fgBrush);
+		dc->CreateSolidColorBrush(color, &fgBrush);
 	}
 
 	void TerminalWindowController::loadFont(HRESULT & hr)

@@ -9,11 +9,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Falcon", "Falcon\Falcon.vcx
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Falcon.UI", "Falcon.UI\Falcon.UI.vcxproj", "{06111ADE-1A86-4C77-975C-CC0429FFA60D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431} = {58EBE28C-2608-4A7D-B74E-6D43B6CC0431}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Falcon.TermEngine", "Falcon.TermEngine\Falcon.TermEngine.vcxproj", "{BE13E701-8B13-4B43-A713-9907FB6F732D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{06111ADE-1A86-4C77-975C-CC0429FFA60D} = {06111ADE-1A86-4C77-975C-CC0429FFA60D}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Falcon.Shared", "Falcon.Shared\Falcon.Shared.vcxproj", "{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +52,14 @@ Global
 		{BE13E701-8B13-4B43-A713-9907FB6F732D}.Release|x64.Build.0 = Release|x64
 		{BE13E701-8B13-4B43-A713-9907FB6F732D}.Release|x86.ActiveCfg = Release|Win32
 		{BE13E701-8B13-4B43-A713-9907FB6F732D}.Release|x86.Build.0 = Release|Win32
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Debug|x64.ActiveCfg = Debug|x64
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Debug|x64.Build.0 = Debug|x64
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Debug|x86.ActiveCfg = Debug|Win32
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Debug|x86.Build.0 = Debug|Win32
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Release|x64.ActiveCfg = Release|x64
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Release|x64.Build.0 = Release|x64
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Release|x86.ActiveCfg = Release|Win32
+		{58EBE28C-2608-4A7D-B74E-6D43B6CC0431}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
