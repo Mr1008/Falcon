@@ -1,6 +1,7 @@
 #pragma once
 #include <dwrite.h>
 #include <functional>
+#include <wrl.h>
 #include "../Falcon.UI/InputListener.h"
 #include "../Falcon.UI/TerminalRenderer.h"
 #include "../Falcon.UI/MainWindow.h"
@@ -10,7 +11,8 @@ namespace Engine
 {
 	class TerminalWindowController :
 		public Controls::TerminalRenderer,
-		public Controls::InputListener
+		public Controls::InputListener,
+		private Shared::Publisher<TerminalWindowListener>
 	{
 	public:
 		TerminalWindowController();
@@ -18,6 +20,7 @@ namespace Engine
 		void close();
 		bool isUp() const;
 		void registerTerminalWindowListener(TerminalWindowListener* listener);
+		void unregisterTerminalWindowListener(TerminalWindowListener* listener);
 
 		virtual void onMouseMoved(const POINT& pos);
 		virtual void onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount);
@@ -29,12 +32,11 @@ namespace Engine
 
 	private:
 		Controls::MainWindow window;
-		TerminalWindowListener* listener;
-		ID2D1SolidColorBrush* fgBrush;
-		IDWriteTextFormat* textFormat;
-		IDWriteFontFile* fontFile;
-		IDWriteFontFace* fontFace;
-		IDWriteFactory* dWriteFactory;
+		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> fgBrush;
+		Microsoft::WRL::ComPtr<IDWriteTextFormat> textFormat;
+		Microsoft::WRL::ComPtr<IDWriteFontFile> fontFile;
+		Microsoft::WRL::ComPtr<IDWriteFontFace> fontFace;
+		Microsoft::WRL::ComPtr<IDWriteFactory> dWriteFactory;
 		float charWidth;
 		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);
 		SIZE sceneSize;
@@ -42,7 +44,6 @@ namespace Engine
 
 		void loadFont(HRESULT& hr);
 		void calculateCharWidth();
-		void notifyListener(std::function<void(TerminalWindowListener*)> fn);
 		COORD countSizeInCharacters(SIZE sizeInPx); // Temporary, should go to renderer. Mock, counts incorrectly.
 	};
 }

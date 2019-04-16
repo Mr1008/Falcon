@@ -77,33 +77,14 @@ namespace Controls
 			nullptr
 		));
 
-		ComPtr<IDXGIDevice> dxgiDevice;
 		HR(d3d11Device.As(&dxgiDevice));
 		
-		ComPtr<IDXGIFactory2> dxgiFactory;
 		HR(CreateDXGIFactory2(
 			DXGI_CREATE_FACTORY_DEBUG,
 			__uuidof(dxgiFactory),
 			reinterpret_cast<void**>(dxgiFactory.GetAddressOf())
 		));
 
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-		swapChainDesc.BufferCount = 2;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
-		RECT rect = getClientRect();
-		swapChainDesc.Width = rect.right - rect.left;
-		swapChainDesc.Height = rect.bottom - rect.top;
-
-		HR(dxgiFactory->CreateSwapChainForComposition(
-			dxgiDevice.Get(),
-			&swapChainDesc,
-			nullptr,
-			swapChain.GetAddressOf()
-		));
 
 		D2D1_FACTORY_OPTIONS d2d1FactoryOptions = { };
 #ifdef _DEBUG
@@ -128,24 +109,7 @@ namespace Controls
 			dc.GetAddressOf()
 		));
 
-		ComPtr<IDXGISurface2> dxgiSurface;
-		HR(swapChain->GetBuffer(
-			0,
-			__uuidof(dxgiSurface),
-			reinterpret_cast<void**>(dxgiSurface.GetAddressOf())
-		));
-
-		D2D1_BITMAP_PROPERTIES1 bitmapProperties = {};
-		bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-		bitmapProperties.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		bitmapProperties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
-
-		ComPtr<ID2D1Bitmap1> d2d1Bitmap;
-		HR(dc->CreateBitmapFromDxgiSurface(
-			dxgiSurface.Get(),
-			bitmapProperties,
-			d2d1Bitmap.GetAddressOf()
-		));
+		ComPtr<ID2D1Bitmap> d2d1Bitmap = createID2D1Bitmap();
 		dc->SetTarget(d2d1Bitmap.Get());
 		
 		HR(DCompositionCreateDevice(
@@ -160,7 +124,6 @@ namespace Controls
 			dCompTarget.GetAddressOf()
 		));
 		
-		ComPtr<IDCompositionVisual> dCompVisual;
 		HR(dCompDevice->CreateVisual(
 			dCompVisual.GetAddressOf()
 		));
@@ -180,6 +143,20 @@ namespace Controls
 		return 1;
 	}
 
+	int DirectXWindow::onResize(ResizeType type, const SIZE& size)
+	{
+		Control::onResize(type, size);
+		if (type == ResizeType::Restored || type == ResizeType::Maximized)
+		{
+			ComPtr<ID2D1Bitmap> d2d1Bitmap = createID2D1Bitmap();
+			dc->SetTarget(d2d1Bitmap.Get());
+			HR(dCompVisual->SetContent(
+				swapChain.Get()
+			));
+		}
+		return 0;
+	}
+
 	void DirectXWindow::render(function<void(ID2D1DeviceContext*)> fn)
 	{
 		dc->BeginDraw();
@@ -187,6 +164,50 @@ namespace Controls
 		HR(dc->EndDraw());
 		HR(swapChain->Present(1, 0));
 		HR(dCompDevice->Commit());
+	}
+
+	ComPtr<ID2D1Bitmap> DirectXWindow::createID2D1Bitmap()
+	{
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		swapChainDesc.BufferCount = 2;
+		swapChainDesc.SampleDesc.Count = 1;
+		swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
+		RECT rect = getClientRect();
+		swapChainDesc.Width = rect.right - rect.left;
+		swapChainDesc.Height = rect.bottom - rect.top;
+
+		ComPtr<IDXGISwapChain1> sc;
+		HR(dxgiFactory->CreateSwapChainForComposition(
+			dxgiDevice.Get(),
+			&swapChainDesc,
+			nullptr,
+			sc.GetAddressOf()
+		));
+		swapChain = sc;
+
+		ComPtr<IDXGISurface2> dxgiSurface;
+		HR(swapChain->GetBuffer(
+			0,
+			__uuidof(dxgiSurface),
+			reinterpret_cast<void**>(dxgiSurface.GetAddressOf())
+		));
+
+		D2D1_BITMAP_PROPERTIES1 bitmapProperties = {};
+		bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
+		bitmapProperties.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		bitmapProperties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
+
+		ComPtr<ID2D1Bitmap1> d2d1Bitmap;
+		HR(dc->CreateBitmapFromDxgiSurface(
+			dxgiSurface.Get(),
+			bitmapProperties,
+			d2d1Bitmap.GetAddressOf()
+		));
+
+		return d2d1Bitmap;
 	}
 
 	void DirectXWindow::notifyRenderers(function<void(TerminalRenderer*)> fn)

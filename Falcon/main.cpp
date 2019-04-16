@@ -1,5 +1,4 @@
 #include "pch.h"
-#pragma comment(lib, "Falcon.TermEngine.lib")
 #include "../Falcon.TermEngine/Term.h"
 
 using namespace Engine;

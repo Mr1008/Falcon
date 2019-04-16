@@ -31,6 +31,7 @@ namespace Controls
 
 		virtual void onCreated();
 		virtual int onDestroy();
+		virtual int onResize(ResizeType type, const SIZE& size);
 
 		void render(std::function<void(ID2D1DeviceContext*)> fn);
 		void registerTerminalRenderer(TerminalRenderer* renderer);
@@ -38,11 +39,16 @@ namespace Controls
 
 	private:
 		bool isAcrylicEnabled;
+		Microsoft::WRL::ComPtr<IDXGIFactory2> dxgiFactory;
+		Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice;
 		Microsoft::WRL::ComPtr<IDCompositionDevice> dCompDevice;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain;
 		Microsoft::WRL::ComPtr<ID2D1DeviceContext> dc;
 		Microsoft::WRL::ComPtr<IDCompositionTarget> dCompTarget;
+		Microsoft::WRL::ComPtr<IDCompositionVisual> dCompVisual;
 
+
+		Microsoft::WRL::ComPtr<ID2D1Bitmap> createID2D1Bitmap();
 		void notifyRenderers(std::function<void(TerminalRenderer*)> fn);
 	};
 }

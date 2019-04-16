@@ -3,7 +3,6 @@
 #include "../Falcon.UI/MessagePipe.h"
 #include "DxCommon.h"
 #include "DWriteFontLoader.h"
-#pragma comment(lib, "dwrite")
 
 
 namespace Engine
@@ -12,6 +11,8 @@ namespace Engine
 	using namespace Controls;
 	using namespace Fonts;
 	using namespace Messages;
+	using namespace Shared;
+	using namespace Microsoft::WRL;
 
 	TerminalWindowController::TerminalWindowController() :
 		window(L"Falcon"),
@@ -22,8 +23,7 @@ namespace Engine
 		fontFile(nullptr),
 		sceneSize({ 0,0 }),
 		textFormat(nullptr),
-		isWindowUp(false),
-		listener(nullptr)
+		isWindowUp(false)
 	{
 		window.registerInputListener(this);
 		window.registerTerminalRenderer(this);
@@ -49,7 +49,12 @@ namespace Engine
 
 	void TerminalWindowController::registerTerminalWindowListener(TerminalWindowListener* listener)
 	{
-		this->listener = listener;
+		Publisher<TerminalWindowListener>::registerListener(listener);
+	}
+
+	void TerminalWindowController::unregisterTerminalWindowListener(TerminalWindowListener* listener)
+	{
+		Publisher<TerminalWindowListener>::unregisterListener(listener);
 	}
 
 	void TerminalWindowController::onMouseMoved(const POINT& pos)
@@ -57,16 +62,16 @@ namespace Engine
 		window.render(
 			[this](ID2D1DeviceContext * dc) 
 			{
-				dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.7f));
+				dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
 
 				auto r = dc->GetSize();
 				dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
 				dc->DrawText(
-					L"TEST",
-					4,
-					textFormat,
+					L"TEST1234567890",
+					14,
+					textFormat.Get(),
 					D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
-					fgBrush
+					fgBrush.Get()
 				);
 			}
 		);
@@ -89,7 +94,7 @@ namespace Engine
 		HRESULT hr = DWriteCreateFactory(
 			DWRITE_FACTORY_TYPE_SHARED,
 			__uuidof(IDWriteFactory),
-			reinterpret_cast<IUnknown * *>(&dWriteFactory)
+			reinterpret_cast<IUnknown **>(dWriteFactory.GetAddressOf())
 		);
 
 		loadFont(hr);
@@ -99,7 +104,7 @@ namespace Engine
 
 	void TerminalWindowController::loadFont(HRESULT & hr)
 	{
-		DWriteFontLoader fontLoader(dWriteFactory);
+		DWriteFontLoader fontLoader(dWriteFactory.Get());
 		std::vector<std::wstring> filePaths;
 		wchar_t path[_MAX_PATH];
 		if (_wfullpath(path, L"fonts/UbuntuMono-R.ttf", _MAX_PATH))
@@ -124,39 +129,27 @@ namespace Engine
 
 	void TerminalWindowController::onReleaseDxResources()
 	{
-		SafeRelease(&fgBrush);
-		SafeRelease(&fontFile);
-		SafeRelease(&fontFace);
-		SafeRelease(&textFormat);
-		SafeRelease(&dWriteFactory);
 	}
 
 	int TerminalWindowController::onResizeScene(ResizeType type, const SIZE & size)
 	{
 		sceneSize = size;
-		notifyListener([&](TerminalWindowListener * listener) {listener->onWindowResize(countSizeInCharacters(size)); });
+		notifyListeners([&](TerminalWindowListener * listener) {listener->onWindowResize(countSizeInCharacters(size)); });
 		return 0;
 	}
 
 	void TerminalWindowController::calculateCharWidth()
 	{
-		IDWriteTextLayout* textLayout;
-		HRESULT hr = dWriteFactory->CreateTextLayout(L"X", 1, textFormat, 100, 100, &textLayout);
+		ComPtr<IDWriteTextLayout> textLayout;
+		HRESULT hr = dWriteFactory->CreateTextLayout(L"X", 1, textFormat.Get(), 100, 100, textLayout.GetAddressOf());
 		if (SUCCEEDED(hr)) {
 			hr = textLayout->DetermineMinWidth(&charWidth);
 			if (FAILED(hr)) {
 				charWidth = -1.f;
 			}
+		}
+	}
 
-			SafeRelease(&textLayout);
-		}
-	}
-	void TerminalWindowController::notifyListener(std::function<void(TerminalWindowListener*)> fn)
-	{
-		if (listener != nullptr) {
-			fn(listener);
-		}
-	}
 	COORD TerminalWindowController::countSizeInCharacters(SIZE sizeInPx)
 	{
 		return {

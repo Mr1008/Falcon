@@ -65,6 +65,6 @@ namespace Engine
 
 	void TerminalMaster::onSlaveInput(char* buffer, size_t bufferSize)
 	{
-
+		
 	}
 }
