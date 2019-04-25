@@ -7,7 +7,7 @@ namespace Controls
 	using namespace std;
 	HINSTANCE Control::hInstance;
 
-	LRESULT CALLBACK Controls::OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	LRESULT CALLBACK OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (uMsg == WM_CREATE) {
 			CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
@@ -120,6 +120,10 @@ namespace Controls
 		}
 		}
 
+		if (view != nullptr && view->onMessage(uMsg, wParam, lParam)) {
+			return 0;
+		}
+
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
@@ -223,6 +227,11 @@ namespace Controls
 	{
 		this->size = size;
 		return 0;
+	}
+
+	bool Control::onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		return false;
 	}
 
 	void Control::setControlPosAndSize(POINT * pos, const SIZE * size)

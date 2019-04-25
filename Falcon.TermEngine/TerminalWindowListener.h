@@ -5,6 +5,6 @@ namespace Engine
 	class TerminalWindowListener
 	{
 	public:
-		virtual void onWindowResize(const COORD& size);
+		virtual void onWindowResize(const COORD& size) = 0;
 	};
 }

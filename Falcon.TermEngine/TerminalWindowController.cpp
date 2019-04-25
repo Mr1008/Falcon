@@ -14,7 +14,7 @@ namespace Engine
 	using namespace Shared;
 	using namespace Microsoft::WRL;
 
-	TerminalWindowController::TerminalWindowController() :
+	TerminalWindowController::TerminalWindowController(TextBuffer *buffer) :
 		window(L"Falcon"),
 		charWidth(-1.f),
 		dWriteFactory(nullptr),
@@ -23,7 +23,9 @@ namespace Engine
 		fontFile(nullptr),
 		sceneSize({ 0,0 }),
 		textFormat(nullptr),
-		isWindowUp(false)
+		isWindowUp(false),
+		isWindowReady(false),
+		textBuffer(buffer)
 	{
 		window.registerInputListener(this);
 		window.registerTerminalRenderer(this);
@@ -31,8 +33,8 @@ namespace Engine
 
 	void TerminalWindowController::show()
 	{
-		isWindowUp = true;
 		window.show();
+		isWindowUp = true;
 		MessagePipe::start();
 		isWindowUp = false;
 	}
@@ -47,6 +49,11 @@ namespace Engine
 		return isWindowUp;
 	}
 
+	bool TerminalWindowController::isReady() const
+	{
+		return isWindowReady;
+	}
+
 	void TerminalWindowController::registerTerminalWindowListener(TerminalWindowListener* listener)
 	{
 		Publisher<TerminalWindowListener>::registerListener(listener);
@@ -57,31 +64,11 @@ namespace Engine
 		Publisher<TerminalWindowListener>::unregisterListener(listener);
 	}
 
-	void TerminalWindowController::onMouseMoved(const POINT& pos)
-	{
-	}
-
-	void TerminalWindowController::renderTerminal()
-	{
-		window.render(
-			[this](ID2D1DeviceContext * dc)
-			{
-				dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
-
-				auto r = dc->GetSize();
-				dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
-				dc->DrawText(
-					L"TEST1234567890",
-					14,
-					textFormat.Get(),
-					D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
-					fgBrush.Get()
-				);
-			}
-		);
-	}
-
 	void TerminalWindowController::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
+	{
+	}
+
+	void TerminalWindowController::onMouseMoved(const POINT& pos)
 	{
 	}
 
@@ -91,6 +78,14 @@ namespace Engine
 
 	void TerminalWindowController::onMouseButtonUp(const POINT& pos, MouseButton button)
 	{
+	}
+
+	int TerminalWindowController::onResizeScene(ResizeType type, const SIZE& size)
+	{
+		sceneSize = size;
+		notifyListeners([&](TerminalWindowListener * listener) {listener->onWindowResize(countSizeInCharacters(size)); });
+		render();
+		return 0;
 	}
 
 	void TerminalWindowController::onCreateDxResources(ID2D1DeviceContext * dc)
@@ -104,6 +99,7 @@ namespace Engine
 		loadFont(hr);
 		const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f);
 		dc->CreateSolidColorBrush(color, &fgBrush);
+		isWindowReady = true;
 	}
 
 	void TerminalWindowController::loadFont(HRESULT & hr)
@@ -133,14 +129,30 @@ namespace Engine
 
 	void TerminalWindowController::onReleaseDxResources()
 	{
+		isWindowReady = false;
 	}
 
-	int TerminalWindowController::onResizeScene(ResizeType type, const SIZE & size)
+	void TerminalWindowController::render()
 	{
-		sceneSize = size;
-		notifyListeners([&](TerminalWindowListener * listener) {listener->onWindowResize(countSizeInCharacters(size)); });
-		renderTerminal();
-		return 0;
+		window.render(
+			[this](ID2D1DeviceContext * dc)
+			{
+				dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
+
+				auto r = dc->GetSize();
+				dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
+				size_t linesCount = textBuffer->getLinesCount();
+				//for (size_t i = 0; i < linesCount; ++i) {
+					dc->DrawText(
+						textBuffer->getLine(0).c_str(),
+						textBuffer->getLine(0).size(),
+						textFormat.Get(),
+						D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
+						fgBrush.Get()
+					);
+				//}
+			}
+		);
 	}
 
 	void TerminalWindowController::calculateCharWidth()

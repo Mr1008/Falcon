@@ -191,7 +191,7 @@
     <ClCompile Include="Term.cpp" />
     <ClCompile Include="TerminalMaster.cpp" />
     <ClCompile Include="TerminalWindowController.cpp" />
-    <ClCompile Include="TerminalWindowListener.cpp" />
+    <ClCompile Include="TextBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DWriteFontCollectionLoader.h" />
@@ -206,6 +206,7 @@
     <ClInclude Include="TerminalMaster.h" />
     <ClInclude Include="TerminalWindowController.h" />
     <ClInclude Include="TerminalWindowListener.h" />
+    <ClInclude Include="TextBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\UbuntuMono-R.ttf" />

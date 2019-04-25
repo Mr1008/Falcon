@@ -2,6 +2,7 @@
 #include "../Falcon.TermEngine/Term.h"
 
 using namespace Engine;
+using namespace std;
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCmdLine, _In_ int nCmdShow)
 {
@@ -11,7 +12,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCm
 	if (_wdupenv_s(&startCommand, &size, L"ComSpec") != 0 || startCommand == nullptr) {
 		return 1;
 	}
-	term.start(startCommand);
+	term.start(wstring(startCommand) + L" /K \"chcp 65001\"");
 	delete startCommand;
 	return term.getReturnValue();
 }

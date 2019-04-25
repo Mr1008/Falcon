@@ -32,7 +32,7 @@ namespace Engine
 	{
 		windowThread = make_unique<thread>(
 			[this]() {
-				terminalWindow = make_unique<TerminalWindowController>();
+				terminalWindow = make_unique<TerminalWindowController>(&textBuffer);
 				terminalWindow->registerTerminalWindowListener(this);
 				terminalWindow->show();
 			});
@@ -61,10 +61,17 @@ namespace Engine
 	void TerminalMaster::onWindowResize(const COORD& size)
 	{
 		ResizePseudoConsole(con, size);
+		textBuffer.setWidth(size.Y);
 	}
 
 	void TerminalMaster::onSlaveInput(char* buffer, size_t bufferSize)
 	{
-		
+		wchar_t *wideBuf = new wchar_t[bufferSize];
+		MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buffer, bufferSize, wideBuf, bufferSize);
+		textBuffer.acceptInput(wstring(wideBuf, bufferSize));
+		delete[] wideBuf;
+		if (terminalWindow->isReady()) {
+			terminalWindow->render();
+		}
 	}
 }

@@ -4,6 +4,7 @@
 #include <thread>
 #include "TerminalWindowController.h"
 #include "TerminalWindowListener.h"
+#include "TextBuffer.h"
 
 namespace Engine
 {
@@ -26,6 +27,7 @@ namespace Engine
 		HANDLE pipeOut;
 		std::unique_ptr<std::thread> pipeListenerThread;
 		std::unique_ptr<std::thread> windowThread;
+		TextBuffer textBuffer;
 
 		void onSlaveInput(char* buffer, size_t bufferSize);
 

@@ -32,6 +32,7 @@ namespace Controls
 		virtual void onCreated();
 		virtual int onDestroy();
 		virtual int onResize(ResizeType type, const SIZE& size);
+		virtual bool onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		void render(std::function<void(ID2D1DeviceContext*)> fn);
 		void registerTerminalRenderer(TerminalRenderer* renderer);
@@ -40,6 +41,10 @@ namespace Controls
 	private:
 		const size_t SWAP_BUFFERS = 2;
 		const DXGI_FORMAT PIXEL_FORMAT = DXGI_FORMAT_B8G8R8A8_UNORM;
+		
+		enum DX_WINDOW_MSG {
+			RENDER = WM_USER
+		};
 
 		bool isAcrylicEnabled;
 		Microsoft::WRL::ComPtr<IDXGIFactory2> dxgiFactory;
@@ -50,6 +55,7 @@ namespace Controls
 		Microsoft::WRL::ComPtr<IDCompositionTarget> dCompTarget;
 		Microsoft::WRL::ComPtr<IDCompositionVisual> dCompVisual;
 
+		void internalRender(std::function<void(ID2D1DeviceContext*)> *fn);
 		void createID2D1Bitmap();
 		void notifyRenderers(std::function<void(TerminalRenderer*)> fn);
 	};

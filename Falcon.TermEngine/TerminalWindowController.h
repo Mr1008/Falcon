@@ -6,6 +6,7 @@
 #include "../Falcon.UI/TerminalRenderer.h"
 #include "../Falcon.UI/MainWindow.h"
 #include "TerminalWindowListener.h"
+#include "TextBuffer.h"
 
 namespace Engine
 {
@@ -15,15 +16,17 @@ namespace Engine
 		private Shared::Publisher<TerminalWindowListener>
 	{
 	public:
-		TerminalWindowController();
+		TerminalWindowController(TextBuffer *buffer);
+
 		void show();
 		void close();
 		bool isUp() const;
+		bool isReady() const;
 		void registerTerminalWindowListener(TerminalWindowListener* listener);
 		void unregisterTerminalWindowListener(TerminalWindowListener* listener);
 
 		virtual void onMouseMoved(const POINT& pos);
-		void renderTerminal();
+		void render();
 		virtual void onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount);
 		virtual void onMouseButtonDown(const POINT& pos, Controls::MouseButton button);
 		virtual void onMouseButtonUp(const POINT& pos, Controls::MouseButton button);
@@ -42,6 +45,8 @@ namespace Engine
 		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);
 		SIZE sceneSize;
 		bool isWindowUp;
+		bool isWindowReady;
+		TextBuffer* textBuffer;
 
 		void loadFont(HRESULT& hr);
 		void calculateCharWidth();

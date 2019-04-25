@@ -41,6 +41,17 @@ namespace Controls
 	{
 	}
 
+	bool DirectXWindow::onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		switch (uMsg) {
+			case DX_WINDOW_MSG::RENDER:
+				internalRender(reinterpret_cast<function<void(ID2D1DeviceContext*)>*>(wParam));
+				return true;
+		default:
+			return false;
+		}
+	}
+
 	void DirectXWindow::onCreated()
 	{
 		if (isAcrylicEnabled)
@@ -179,8 +190,13 @@ namespace Controls
 
 	void DirectXWindow::render(function<void(ID2D1DeviceContext*)> fn)
 	{
+		SendMessage(getHwnd(), DX_WINDOW_MSG::RENDER, reinterpret_cast<WPARAM>(&fn), 0);
+	}
+
+	void DirectXWindow::internalRender(function<void(ID2D1DeviceContext*)> *fn)
+	{
 		dc->BeginDraw();
-		fn(dc.Get());
+		fn->operator()(dc.Get());
 		HR(dc->EndDraw());
 		HR(swapChain->Present(1, 0));
 		HR(dCompDevice->Commit());
@@ -221,7 +237,7 @@ namespace Controls
 	{
 		Publisher<TerminalRenderer>::registerListener(renderer);
 	}
-
+	
 	void DirectXWindow::unregisterTerminalRenderer(TerminalRenderer * renderer)
 	{
 		Publisher<TerminalRenderer>::unregisterListener(renderer);

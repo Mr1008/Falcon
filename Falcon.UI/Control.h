@@ -45,6 +45,7 @@ namespace Controls
 		virtual int onPaint();
 		virtual int onDestroy();
 		virtual int onResize(ResizeType type, const SIZE& size);
+		virtual bool onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		friend LRESULT CALLBACK OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
