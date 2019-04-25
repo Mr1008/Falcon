@@ -38,6 +38,9 @@ namespace Controls
 		void unregisterTerminalRenderer(TerminalRenderer* renderer);
 
 	private:
+		const size_t SWAP_BUFFERS = 2;
+		const DXGI_FORMAT PIXEL_FORMAT = DXGI_FORMAT_B8G8R8A8_UNORM;
+
 		bool isAcrylicEnabled;
 		Microsoft::WRL::ComPtr<IDXGIFactory2> dxgiFactory;
 		Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice;
@@ -47,8 +50,7 @@ namespace Controls
 		Microsoft::WRL::ComPtr<IDCompositionTarget> dCompTarget;
 		Microsoft::WRL::ComPtr<IDCompositionVisual> dCompVisual;
 
-
-		Microsoft::WRL::ComPtr<ID2D1Bitmap> createID2D1Bitmap();
+		void createID2D1Bitmap();
 		void notifyRenderers(std::function<void(TerminalRenderer*)> fn);
 	};
 }

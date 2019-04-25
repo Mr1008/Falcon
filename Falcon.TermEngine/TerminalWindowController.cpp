@@ -59,8 +59,12 @@ namespace Engine
 
 	void TerminalWindowController::onMouseMoved(const POINT& pos)
 	{
+	}
+
+	void TerminalWindowController::renderTerminal()
+	{
 		window.render(
-			[this](ID2D1DeviceContext * dc) 
+			[this](ID2D1DeviceContext * dc)
 			{
 				dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
 
@@ -135,6 +139,7 @@ namespace Engine
 	{
 		sceneSize = size;
 		notifyListeners([&](TerminalWindowListener * listener) {listener->onWindowResize(countSizeInCharacters(size)); });
+		renderTerminal();
 		return 0;
 	}
 

@@ -108,9 +108,6 @@ namespace Controls
 			D2D1_DEVICE_CONTEXT_OPTIONS_NONE,
 			dc.GetAddressOf()
 		));
-
-		ComPtr<ID2D1Bitmap> d2d1Bitmap = createID2D1Bitmap();
-		dc->SetTarget(d2d1Bitmap.Get());
 		
 		HR(DCompositionCreateDevice(
 			dxgiDevice.Get(),
@@ -127,9 +124,27 @@ namespace Controls
 		HR(dCompDevice->CreateVisual(
 			dCompVisual.GetAddressOf()
 		));
-		HR(dCompVisual->SetContent(
-			swapChain.Get()
+
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+		swapChainDesc.Format = PIXEL_FORMAT;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		swapChainDesc.BufferCount = SWAP_BUFFERS;
+		swapChainDesc.SampleDesc.Count = 1;
+		swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
+		RECT rect = getClientRect();
+		swapChainDesc.Width = rect.right - rect.left;
+		swapChainDesc.Height = rect.bottom - rect.top;
+
+		HR(dxgiFactory->CreateSwapChainForComposition(
+			dxgiDevice.Get(),
+			&swapChainDesc,
+			nullptr,
+			swapChain.GetAddressOf()
 		));
+
+		createID2D1Bitmap();
+
 		HR(dCompTarget->SetRoot(
 			dCompVisual.Get()
 		));
@@ -148,11 +163,16 @@ namespace Controls
 		Control::onResize(type, size);
 		if (type == ResizeType::Restored || type == ResizeType::Maximized)
 		{
-			ComPtr<ID2D1Bitmap> d2d1Bitmap = createID2D1Bitmap();
-			dc->SetTarget(d2d1Bitmap.Get());
-			HR(dCompVisual->SetContent(
-				swapChain.Get()
+			dc->SetTarget(nullptr);
+			HR(swapChain->ResizeBuffers(
+				SWAP_BUFFERS,
+				size.cx,
+				size.cy,
+				PIXEL_FORMAT,
+				0
 			));
+			createID2D1Bitmap();
+			notifyRenderers([&](TerminalRenderer * r) {r->onResizeScene(type, size); });
 		}
 		return 0;
 	}
@@ -166,28 +186,8 @@ namespace Controls
 		HR(dCompDevice->Commit());
 	}
 
-	ComPtr<ID2D1Bitmap> DirectXWindow::createID2D1Bitmap()
+	void DirectXWindow::createID2D1Bitmap()
 	{
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-		swapChainDesc.BufferCount = 2;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
-		RECT rect = getClientRect();
-		swapChainDesc.Width = rect.right - rect.left;
-		swapChainDesc.Height = rect.bottom - rect.top;
-
-		ComPtr<IDXGISwapChain1> sc;
-		HR(dxgiFactory->CreateSwapChainForComposition(
-			dxgiDevice.Get(),
-			&swapChainDesc,
-			nullptr,
-			sc.GetAddressOf()
-		));
-		swapChain = sc;
-
 		ComPtr<IDXGISurface2> dxgiSurface;
 		HR(swapChain->GetBuffer(
 			0,
@@ -206,8 +206,10 @@ namespace Controls
 			bitmapProperties,
 			d2d1Bitmap.GetAddressOf()
 		));
-
-		return d2d1Bitmap;
+		dc->SetTarget(d2d1Bitmap.Get());
+		HR(dCompVisual->SetContent(
+			swapChain.Get()
+		));
 	}
 
 	void DirectXWindow::notifyRenderers(function<void(TerminalRenderer*)> fn)

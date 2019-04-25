@@ -23,6 +23,7 @@ namespace Engine
 		void unregisterTerminalWindowListener(TerminalWindowListener* listener);
 
 		virtual void onMouseMoved(const POINT& pos);
+		void renderTerminal();
 		virtual void onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount);
 		virtual void onMouseButtonDown(const POINT& pos, Controls::MouseButton button);
 		virtual void onMouseButtonUp(const POINT& pos, Controls::MouseButton button);
