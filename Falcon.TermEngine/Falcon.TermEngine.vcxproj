@@ -188,24 +188,28 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SlaveInputInterpreter.cpp" />
     <ClCompile Include="Term.cpp" />
     <ClCompile Include="TerminalMaster.cpp" />
+    <ClCompile Include="DxTerminalRenderer.cpp" />
     <ClCompile Include="TerminalWindowController.cpp" />
     <ClCompile Include="TextBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChangeListener.h" />
     <ClInclude Include="DWriteFontCollectionLoader.h" />
     <ClInclude Include="DWriteFontFileEnumerator.h" />
     <ClInclude Include="DWriteFontLoader.h" />
-    <ClInclude Include="DxCommon.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SlaveInputInterpreter.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Term.h" />
     <ClInclude Include="TerminalMaster.h" />
+    <ClInclude Include="DxTerminalRenderer.h" />
     <ClInclude Include="TerminalWindowController.h" />
-    <ClInclude Include="TerminalWindowListener.h" />
+    <ClInclude Include="RendererEventsListener.h" />
     <ClInclude Include="TextBuffer.h" />
   </ItemGroup>
   <ItemGroup>

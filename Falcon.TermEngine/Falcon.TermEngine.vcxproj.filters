@@ -41,6 +41,12 @@
     <ClCompile Include="TextBuffer.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="SlaveInputInterpreter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="DxTerminalRenderer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h">
@@ -53,9 +59,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Term.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="DxCommon.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="DWriteFontCollectionLoader.h">
@@ -73,13 +76,22 @@
     <ClInclude Include="TerminalMaster.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="TerminalWindowListener.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="TerminalWindowController.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="TextBuffer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SlaveInputInterpreter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="DxTerminalRenderer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererEventsListener.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChangeListener.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

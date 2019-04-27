@@ -1,55 +1,33 @@
 #pragma once
 #include <dwrite.h>
 #include <functional>
-#include <wrl.h>
-#include "../Falcon.UI/InputListener.h"
-#include "../Falcon.UI/TerminalRenderer.h"
+#include "../Falcon.UI/ControlEventsListener.h"
 #include "../Falcon.UI/MainWindow.h"
-#include "TerminalWindowListener.h"
-#include "TextBuffer.h"
+#include "DxTerminalRenderer.h"
 
 namespace Engine
 {
 	class TerminalWindowController :
-		public Controls::TerminalRenderer,
-		public Controls::InputListener,
-		private Shared::Publisher<TerminalWindowListener>
+		public Controls::ControlEventListener
 	{
 	public:
-		TerminalWindowController(TextBuffer *buffer);
+		TerminalWindowController(std::unique_ptr<DxTerminalRenderer>&& renderer);
 
 		void show();
 		void close();
 		bool isUp() const;
-		bool isReady() const;
-		void registerTerminalWindowListener(TerminalWindowListener* listener);
-		void unregisterTerminalWindowListener(TerminalWindowListener* listener);
+		bool isUpAndRendererReady() const;
+		void render();
 
 		virtual void onMouseMoved(const POINT& pos);
-		void render();
 		virtual void onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount);
 		virtual void onMouseButtonDown(const POINT& pos, Controls::MouseButton button);
 		virtual void onMouseButtonUp(const POINT& pos, Controls::MouseButton button);
-		virtual void onCreateDxResources(ID2D1DeviceContext* dc);
-		virtual void onReleaseDxResources();
-		virtual int onResizeScene(Controls::ResizeType type, const SIZE& size);
+		virtual void onSizeChanged(Controls::ResizeType type, const SIZE& size);
 
 	private:
 		Controls::MainWindow window;
-		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> fgBrush;
-		Microsoft::WRL::ComPtr<IDWriteTextFormat> textFormat;
-		Microsoft::WRL::ComPtr<IDWriteFontFile> fontFile;
-		Microsoft::WRL::ComPtr<IDWriteFontFace> fontFace;
-		Microsoft::WRL::ComPtr<IDWriteFactory> dWriteFactory;
-		float charWidth;
-		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);
-		SIZE sceneSize;
 		bool isWindowUp;
-		bool isWindowReady;
-		TextBuffer* textBuffer;
-
-		void loadFont(HRESULT& hr);
-		void calculateCharWidth();
-		COORD countSizeInCharacters(SIZE sizeInPx); // Temporary, should go to renderer. Mock, counts incorrectly.
+		std::unique_ptr<DxTerminalRenderer> renderer;
 	};
 }

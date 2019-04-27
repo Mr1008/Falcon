@@ -1,7 +1,6 @@
 #pragma once
 #include <dwrite.h>
 #include <vector>
-#include "DxCommon.h"
 #include "DWriteFontCollectionLoader.h"
 
 namespace Engine::Fonts

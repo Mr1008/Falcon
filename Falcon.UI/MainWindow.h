@@ -17,6 +17,6 @@ namespace Controls
 		{
 		}
 
-		virtual int onDestroy();
+		virtual void onDestroy();
 	};
 }

@@ -149,6 +149,7 @@ namespace Engine
 	{
 		master->stop();
 	}
+
 	bool Term::isMasterUp()
 	{
 		if (master == nullptr) {

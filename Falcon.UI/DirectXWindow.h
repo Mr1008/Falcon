@@ -30,11 +30,11 @@ namespace Controls
 		);
 
 		virtual void onCreated();
-		virtual int onDestroy();
-		virtual int onResize(ResizeType type, const SIZE& size);
+		virtual void onDestroy();
+		virtual void onResize(ResizeType type, const SIZE& size);
 		virtual bool onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		void render(std::function<void(ID2D1DeviceContext*)> fn);
+		void invalidate(std::function<void(ID2D1DeviceContext*)> fn);
 		void registerTerminalRenderer(TerminalRenderer* renderer);
 		void unregisterTerminalRenderer(TerminalRenderer* renderer);
 

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "DWriteFontFileEnumerator.h"
-#include "DxCommon.h"
+#include "../Falcon.Shared/COMUtils.h"
 #include "DWriteFontLoader.h"
 
 namespace Engine::Fonts

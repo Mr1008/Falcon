@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "TerminalMaster.h"
+#include "DxTerminalRenderer.h"
 
 namespace Engine
 {
@@ -10,8 +11,10 @@ namespace Engine
 		slave(slave),
 		pipeIn(pipeIn),
 		pipeOut(pipeOut),
-		pipeListenerThread(nullptr)
+		pipeListenerThread(nullptr),
+		inputInterpreter(&textBuffer)
 	{
+		textBuffer.registerListener(this);
 	}
 
 	void pipeListener(HANDLE pipe, TerminalMaster* master)
@@ -30,10 +33,11 @@ namespace Engine
 
 	void TerminalMaster::start()
 	{
+		auto renderer = make_unique<DxTerminalRenderer>(&textBuffer);
+		renderer->registerListener(this);
+		terminalWindow = make_unique<TerminalWindowController>(move(renderer));
 		windowThread = make_unique<thread>(
 			[this]() {
-				terminalWindow = make_unique<TerminalWindowController>(&textBuffer);
-				terminalWindow->registerTerminalWindowListener(this);
 				terminalWindow->show();
 			});
 
@@ -58,20 +62,23 @@ namespace Engine
 		return terminalWindow->isUp();
 	}
 
-	void TerminalMaster::onWindowResize(const COORD& size)
+	void TerminalMaster::onTerminalSizeChange(const COORD & size)
 	{
 		ResizePseudoConsole(con, size);
 		textBuffer.setWidth(size.Y);
 	}
 
-	void TerminalMaster::onSlaveInput(char* buffer, size_t bufferSize)
+	void TerminalMaster::onChange(void* sender)
 	{
-		wchar_t *wideBuf = new wchar_t[bufferSize];
-		MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buffer, bufferSize, wideBuf, bufferSize);
-		textBuffer.acceptInput(wstring(wideBuf, bufferSize));
-		delete[] wideBuf;
-		if (terminalWindow->isReady()) {
+		if (sender == reinterpret_cast<void*>(&textBuffer) && terminalWindow->isUpAndRendererReady()) {
 			terminalWindow->render();
 		}
+	}
+
+	void TerminalMaster::onSlaveInput(char* buffer, size_t bufferSize)
+	{
+		auto wideBuf = make_unique<wchar_t[]>(bufferSize);
+		MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buffer, bufferSize, wideBuf.get(), bufferSize);
+		inputInterpreter.acceptInput(wstring(wideBuf.get(), bufferSize));
 	}
 }

@@ -3,13 +3,16 @@
 #include <memory>
 #include <thread>
 #include "TerminalWindowController.h"
-#include "TerminalWindowListener.h"
+#include "RendererEventsListener.h"
 #include "TextBuffer.h"
+#include "SlaveInputInterpreter.h"
+#include "ChangeListener.h"
 
 namespace Engine
 {
 	class TerminalMaster :
-		public TerminalWindowListener
+		public RendererEventsListener,
+		public ChangeListener
 	{
 	public:
 		TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut, HPCON con);
@@ -17,7 +20,8 @@ namespace Engine
 		void stop();
 		bool isUp() const;
 
-		virtual void onWindowResize(const COORD& size);
+		virtual void onTerminalSizeChange(const COORD& size);
+		virtual void onChange(void* sender);
 
 	private:
 		std::unique_ptr<TerminalWindowController> terminalWindow;
@@ -28,6 +32,7 @@ namespace Engine
 		std::unique_ptr<std::thread> pipeListenerThread;
 		std::unique_ptr<std::thread> windowThread;
 		TextBuffer textBuffer;
+		SlaveInputInterpreter inputInterpreter;
 
 		void onSlaveInput(char* buffer, size_t bufferSize);
 

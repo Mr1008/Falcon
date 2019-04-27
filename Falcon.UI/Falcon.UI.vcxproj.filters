@@ -55,5 +55,11 @@
     <ClInclude Include="DirectXWindow.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="ControlEventsListener.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResizeType.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -172,12 +172,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Control.h" />
+    <ClInclude Include="ControlEventsListener.h" />
     <ClInclude Include="DirectXWindow.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="MessagePipe.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ResizeType.h" />
     <ClInclude Include="TerminalRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

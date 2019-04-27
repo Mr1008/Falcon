@@ -1,23 +1,15 @@
 #pragma once
 #include "pch.h"
-#include "InputListener.h"
+#include "ControlEventsListener.h"
 #include <vector>
 #include <functional>
 #include "../Falcon.Shared/Publisher.h"
+#include "ResizeType.h"
 
 namespace Controls
 {
-	enum ResizeType {
-		Unknown,
-		Restored,
-		Minimized,
-		MaxShow,
-		Maximized,
-		MaxHide
-	};
-
 	class Control
-		: private Shared::Publisher<InputListener>
+		: public Shared::Publisher<ControlEventListener>
 	{
 	public:
 		Control(
@@ -37,15 +29,16 @@ namespace Controls
 		bool hasFocus();
 		HWND getHwnd() const { return hwnd; }
 		static void set_hInstance(HINSTANCE hInstance);
-		void registerInputListener(InputListener* inputListener);
-		void unregisterInputListener(InputListener* inputListener);
 
-		virtual int onCreate();
-		virtual void onCreated();
-		virtual int onPaint();
-		virtual int onDestroy();
-		virtual int onResize(ResizeType type, const SIZE& size);
-		virtual bool onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		void registerEventListener(ControlEventListener* listener);
+		void unregisterEventListener(ControlEventListener* listener);
+
+		virtual void onCreate() {};
+		virtual void onCreated() {};
+		virtual void onPaint() {};
+		virtual void onDestroy() {};
+		virtual void onResize(ResizeType type, const SIZE& size) {};
+		virtual bool onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) { return false; };
 
 		friend LRESULT CALLBACK OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -74,5 +67,12 @@ namespace Controls
 		void setParent(Control* parent);
 		void createAndRegisterClass();
 		void createControl();
+
+		int internalOnCreate();
+		void internalOnCreated();
+		int internalOnPaint();
+		int internalOnDestroy();
+		int internalOnResize(ResizeType type, const SIZE& size);
+		int internalOnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 }

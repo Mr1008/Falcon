@@ -163,13 +163,12 @@ namespace Controls
 		notifyRenderers([this](TerminalRenderer * r) {r->onCreateDxResources(dc.Get()); });
 	}
 
-	int DirectXWindow::onDestroy()
+	void DirectXWindow::onDestroy()
 	{
 		notifyRenderers([](TerminalRenderer * r) {r->onReleaseDxResources(); });
-		return 1;
 	}
 
-	int DirectXWindow::onResize(ResizeType type, const SIZE& size)
+	void DirectXWindow::onResize(ResizeType type, const SIZE& size)
 	{
 		Control::onResize(type, size);
 		if (type == ResizeType::Restored || type == ResizeType::Maximized)
@@ -177,18 +176,17 @@ namespace Controls
 			dc->SetTarget(nullptr);
 			HR(swapChain->ResizeBuffers(
 				SWAP_BUFFERS,
-				size.cx,
-				size.cy,
+				size.cx > 0 ? size.cx : 1,
+				size.cy > 0 ? size.cy : 1,
 				PIXEL_FORMAT,
 				0
 			));
 			createID2D1Bitmap();
 			notifyRenderers([&](TerminalRenderer * r) {r->onResizeScene(type, size); });
 		}
-		return 0;
 	}
 
-	void DirectXWindow::render(function<void(ID2D1DeviceContext*)> fn)
+	void DirectXWindow::invalidate(function<void(ID2D1DeviceContext*)> fn)
 	{
 		SendMessage(getHwnd(), DX_WINDOW_MSG::RENDER, reinterpret_cast<WPARAM>(&fn), 0);
 	}

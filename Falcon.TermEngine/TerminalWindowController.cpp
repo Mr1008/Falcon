@@ -1,34 +1,20 @@
 #include "pch.h"
 #include "TerminalWindowController.h"
 #include "../Falcon.UI/MessagePipe.h"
-#include "DxCommon.h"
-#include "DWriteFontLoader.h"
-
 
 namespace Engine
 {
 	using namespace std;
 	using namespace Controls;
-	using namespace Fonts;
 	using namespace Messages;
-	using namespace Shared;
-	using namespace Microsoft::WRL;
 
-	TerminalWindowController::TerminalWindowController(TextBuffer *buffer) :
+	TerminalWindowController::TerminalWindowController(unique_ptr<DxTerminalRenderer>&& renderer) :
 		window(L"Falcon"),
-		charWidth(-1.f),
-		dWriteFactory(nullptr),
-		fgBrush(nullptr),
-		fontFace(nullptr),
-		fontFile(nullptr),
-		sceneSize({ 0,0 }),
-		textFormat(nullptr),
 		isWindowUp(false),
-		isWindowReady(false),
-		textBuffer(buffer)
+		renderer(move(renderer))
 	{
-		window.registerInputListener(this);
-		window.registerTerminalRenderer(this);
+		window.registerEventListener(this);
+		window.registerTerminalRenderer(this->renderer.get());
 	}
 
 	void TerminalWindowController::show()
@@ -49,19 +35,9 @@ namespace Engine
 		return isWindowUp;
 	}
 
-	bool TerminalWindowController::isReady() const
+	bool TerminalWindowController::isUpAndRendererReady() const
 	{
-		return isWindowReady;
-	}
-
-	void TerminalWindowController::registerTerminalWindowListener(TerminalWindowListener* listener)
-	{
-		Publisher<TerminalWindowListener>::registerListener(listener);
-	}
-
-	void TerminalWindowController::unregisterTerminalWindowListener(TerminalWindowListener* listener)
-	{
-		Publisher<TerminalWindowListener>::unregisterListener(listener);
+		return isUp() && renderer->isReady();
 	}
 
 	void TerminalWindowController::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
@@ -80,98 +56,13 @@ namespace Engine
 	{
 	}
 
-	int TerminalWindowController::onResizeScene(ResizeType type, const SIZE& size)
+	void TerminalWindowController::onSizeChanged(Controls::ResizeType type, const SIZE& size)
 	{
-		sceneSize = size;
-		notifyListeners([&](TerminalWindowListener * listener) {listener->onWindowResize(countSizeInCharacters(size)); });
-		render();
-		return 0;
-	}
-
-	void TerminalWindowController::onCreateDxResources(ID2D1DeviceContext * dc)
-	{
-		HRESULT hr = DWriteCreateFactory(
-			DWRITE_FACTORY_TYPE_SHARED,
-			__uuidof(IDWriteFactory),
-			reinterpret_cast<IUnknown **>(dWriteFactory.GetAddressOf())
-		);
-
-		loadFont(hr);
-		const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f);
-		dc->CreateSolidColorBrush(color, &fgBrush);
-		isWindowReady = true;
-	}
-
-	void TerminalWindowController::loadFont(HRESULT & hr)
-	{
-		DWriteFontLoader fontLoader(dWriteFactory.Get());
-		std::vector<std::wstring> filePaths;
-		wchar_t path[_MAX_PATH];
-		if (_wfullpath(path, L"fonts/UbuntuMono-R.ttf", _MAX_PATH))
-		{
-			filePaths.push_back(wstring(path));
-			IDWriteFontCollection* collection;
-			hr = fontLoader.CreateFontCollection(filePaths, &collection);
-			hr = dWriteFactory->CreateTextFormat(
-				L"Ubuntu Mono",
-				collection,
-				DWRITE_FONT_WEIGHT_NORMAL,
-				DWRITE_FONT_STYLE_NORMAL,
-				DWRITE_FONT_STRETCH_NORMAL,
-				21,
-				L"",
-				&textFormat
-			);
-			SafeRelease(&collection);
-			calculateCharWidth();
-		}
-	}
-
-	void TerminalWindowController::onReleaseDxResources()
-	{
-		isWindowReady = false;
+		render(); // TODO: Unify logic as this should go to renderer IMO
 	}
 
 	void TerminalWindowController::render()
 	{
-		window.render(
-			[this](ID2D1DeviceContext * dc)
-			{
-				dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
-
-				auto r = dc->GetSize();
-				dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
-				size_t linesCount = textBuffer->getLinesCount();
-				//for (size_t i = 0; i < linesCount; ++i) {
-					dc->DrawText(
-						textBuffer->getLine(0).c_str(),
-						textBuffer->getLine(0).size(),
-						textFormat.Get(),
-						D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
-						fgBrush.Get()
-					);
-				//}
-			}
-		);
-	}
-
-	void TerminalWindowController::calculateCharWidth()
-	{
-		ComPtr<IDWriteTextLayout> textLayout;
-		HRESULT hr = dWriteFactory->CreateTextLayout(L"X", 1, textFormat.Get(), 100, 100, textLayout.GetAddressOf());
-		if (SUCCEEDED(hr)) {
-			hr = textLayout->DetermineMinWidth(&charWidth);
-			if (FAILED(hr)) {
-				charWidth = -1.f;
-			}
-		}
-	}
-
-	COORD TerminalWindowController::countSizeInCharacters(SIZE sizeInPx)
-	{
-		return {
-			(short)sizeInPx.cx / 20,
-			(short)sizeInPx.cy / 20
-		};
+		window.invalidate([this](ID2D1DeviceContext * dc) {renderer->render(dc); });
 	}
 }

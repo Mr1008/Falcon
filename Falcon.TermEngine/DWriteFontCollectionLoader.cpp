@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "DWriteFontCollectionLoader.h"
 #include "DWriteFontFileEnumerator.h"
-#include "DxCommon.h"
+#include "../Falcon.Shared/COMUtils.h"
 
 namespace Engine::Fonts
 {
