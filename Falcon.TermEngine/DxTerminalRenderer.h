@@ -2,7 +2,7 @@
 #include <d2d1_2.h>
 #include <wrl.h>
 #include "../Falcon.UI/TerminalRenderer.h"
-#include "TextBuffer.h"
+#include "TerminalBuffer.h"
 #include "RendererEventsListener.h"
 
 namespace Engine
@@ -13,7 +13,7 @@ namespace Engine
 
 	{
 	public:
-		DxTerminalRenderer(TextBuffer *textBuffer);
+		DxTerminalRenderer(TerminalBuffer *textBuffer);
 		bool isReady() const;
 		void render(ID2D1DeviceContext* dc);
 
@@ -27,7 +27,7 @@ namespace Engine
 		Microsoft::WRL::ComPtr<IDWriteFontFile> fontFile;
 		Microsoft::WRL::ComPtr<IDWriteFontFace> fontFace;
 		Microsoft::WRL::ComPtr<IDWriteFactory> dWriteFactory;
-		TextBuffer* textBuffer;
+		TerminalBuffer* textBuffer;
 		bool isReadyFlag;
 		float charWidth;
 		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);

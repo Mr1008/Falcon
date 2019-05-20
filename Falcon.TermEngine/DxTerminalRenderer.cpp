@@ -11,7 +11,7 @@ namespace Engine
 	using namespace Controls;
 	using namespace Microsoft::WRL;
 
-	DxTerminalRenderer::DxTerminalRenderer(TextBuffer* textBuffer) :
+	DxTerminalRenderer::DxTerminalRenderer(TerminalBuffer* textBuffer) :
 		textBuffer(textBuffer)
 	{
 	}
@@ -53,15 +53,17 @@ namespace Engine
 		auto r = dc->GetSize();
 		dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
 		size_t linesCount = textBuffer->getLinesCount();
-		//for (size_t i = 0; i < linesCount; ++i) {
-		dc->DrawText(
-			textBuffer->getLine(0).c_str(),
-			textBuffer->getLine(0).size(),
-			textFormat.Get(),
-			D2D1::RectF(padding.left, padding.top, r.width - padding.left - padding.right, r.height - padding.top - padding.bottom),
-			fgBrush.Get()
-		);
-		//}
+		for (size_t y = 0; y < linesCount; ++y) {
+			auto &line = textBuffer->getLine(y);
+			for (size_t x = 0; x < line.size(); ++x) {
+				dc->DrawText(
+					&line[x].character,
+					1,
+					textFormat.Get(),
+					D2D1::RectF(x * 20, y * 20),
+					fgBrush.Get());
+			}
+		}
 	}
 
 	void DxTerminalRenderer::loadFont(HRESULT& hr)

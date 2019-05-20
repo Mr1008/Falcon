@@ -65,7 +65,6 @@ namespace Engine
 	void TerminalMaster::onTerminalSizeChange(const COORD & size)
 	{
 		ResizePseudoConsole(con, size);
-		textBuffer.setWidth(size.Y);
 	}
 
 	void TerminalMaster::onChange(void* sender)

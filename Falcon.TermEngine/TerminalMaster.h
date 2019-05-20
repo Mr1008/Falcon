@@ -4,7 +4,7 @@
 #include <thread>
 #include "TerminalWindowController.h"
 #include "RendererEventsListener.h"
-#include "TextBuffer.h"
+#include "TerminalBuffer.h"
 #include "SlaveInputInterpreter.h"
 #include "ChangeListener.h"
 
@@ -31,7 +31,7 @@ namespace Engine
 		HANDLE pipeOut;
 		std::unique_ptr<std::thread> pipeListenerThread;
 		std::unique_ptr<std::thread> windowThread;
-		TextBuffer textBuffer;
+		TerminalBuffer textBuffer;
 		SlaveInputInterpreter inputInterpreter;
 
 		void onSlaveInput(char* buffer, size_t bufferSize);
