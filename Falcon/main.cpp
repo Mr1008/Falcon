@@ -12,7 +12,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCm
 	if (_wdupenv_s(&startCommand, &size, L"ComSpec") != 0 || startCommand == nullptr) {
 		return 1;
 	}
-	term.start(wstring(startCommand) + L" /K \"chcp 65001\"");
+	term.start(wstring(startCommand));
 	delete startCommand;
 	return term.getReturnValue();
 }

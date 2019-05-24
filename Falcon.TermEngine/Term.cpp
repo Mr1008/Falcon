@@ -147,7 +147,9 @@ namespace Engine
 
 	void Term::onSlaveIsDown()
 	{
-		master->stop();
+		if (master != nullptr) {
+			master->stop();
+		}
 	}
 
 	bool Term::isMasterUp()

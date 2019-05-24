@@ -44,9 +44,9 @@ namespace Controls
 	bool DirectXWindow::onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (uMsg) {
-			case DX_WINDOW_MSG::RENDER:
-				internalRender(reinterpret_cast<function<void(ID2D1DeviceContext*)>*>(wParam));
-				return true;
+		case DX_WINDOW_MSG::RENDER:
+			internalRender(reinterpret_cast<function<void(ID2D1DeviceContext*)>*>(wParam));
+			return true;
 		default:
 			return false;
 		}
@@ -89,7 +89,7 @@ namespace Controls
 		));
 
 		HR(d3d11Device.As(&dxgiDevice));
-		
+
 		HR(CreateDXGIFactory2(
 			DXGI_CREATE_FACTORY_DEBUG,
 			__uuidof(dxgiFactory),
@@ -101,7 +101,7 @@ namespace Controls
 #ifdef _DEBUG
 		d2d1FactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
 #endif
-		
+
 		ComPtr<ID2D1Factory2> d2d1Factory;
 		HR(D2D1CreateFactory(
 			D2D1_FACTORY_TYPE_SINGLE_THREADED,
@@ -119,7 +119,7 @@ namespace Controls
 			D2D1_DEVICE_CONTEXT_OPTIONS_NONE,
 			dc.GetAddressOf()
 		));
-		
+
 		HR(DCompositionCreateDevice(
 			dxgiDevice.Get(),
 			__uuidof(dCompDevice),
@@ -131,7 +131,7 @@ namespace Controls
 			true,
 			dCompTarget.GetAddressOf()
 		));
-		
+
 		HR(dCompDevice->CreateVisual(
 			dCompVisual.GetAddressOf()
 		));
@@ -160,12 +160,12 @@ namespace Controls
 			dCompVisual.Get()
 		));
 
-		notifyRenderers([this](TerminalRenderer * r) {r->onCreateDxResources(dc.Get()); });
+		notifyRenderers([this](TerminalRenderer* r) {r->onCreateDxResources(dc.Get()); });
 	}
 
 	void DirectXWindow::onDestroy()
 	{
-		notifyRenderers([](TerminalRenderer * r) {r->onReleaseDxResources(); });
+		notifyRenderers([](TerminalRenderer* r) {r->onReleaseDxResources(); });
 	}
 
 	void DirectXWindow::onResize(ResizeType type, const SIZE& size)
@@ -182,22 +182,28 @@ namespace Controls
 				0
 			));
 			createID2D1Bitmap();
-			notifyRenderers([&](TerminalRenderer * r) {r->onResizeScene(type, size); });
+			notifyRenderers([&](TerminalRenderer* r) {r->onResizeScene(type, size); });
 		}
 	}
 
-	void DirectXWindow::invalidate(function<void(ID2D1DeviceContext*)> fn)
+	void DirectXWindow::invalidate()
 	{
-		SendMessage(getHwnd(), DX_WINDOW_MSG::RENDER, reinterpret_cast<WPARAM>(&fn), 0);
+		SendMessage(getHwnd(), DX_WINDOW_MSG::RENDER, reinterpret_cast<WPARAM>(&function([this](ID2D1DeviceContext* dc) {
+			notifyRenderers([&](TerminalRenderer* r) {
+				r->onRender(dc);
+				});
+			})), 0);
 	}
 
-	void DirectXWindow::internalRender(function<void(ID2D1DeviceContext*)> *fn)
+	void DirectXWindow::internalRender(function<void(ID2D1DeviceContext*)>* fn)
 	{
+		renderMutex.lock();
 		dc->BeginDraw();
 		fn->operator()(dc.Get());
 		HR(dc->EndDraw());
 		HR(swapChain->Present(1, 0));
 		HR(dCompDevice->Commit());
+		renderMutex.unlock();
 	}
 
 	void DirectXWindow::createID2D1Bitmap()
@@ -231,12 +237,12 @@ namespace Controls
 		Publisher<TerminalRenderer>::notifyListeners(fn);
 	}
 
-	void DirectXWindow::registerTerminalRenderer(TerminalRenderer * renderer)
+	void DirectXWindow::registerTerminalRenderer(TerminalRenderer* renderer)
 	{
 		Publisher<TerminalRenderer>::registerListener(renderer);
 	}
-	
-	void DirectXWindow::unregisterTerminalRenderer(TerminalRenderer * renderer)
+
+	void DirectXWindow::unregisterTerminalRenderer(TerminalRenderer* renderer)
 	{
 		Publisher<TerminalRenderer>::unregisterListener(renderer);
 	}

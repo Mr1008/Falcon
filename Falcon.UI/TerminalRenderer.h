@@ -7,8 +7,9 @@ namespace Controls
 	class TerminalRenderer
 	{
 	public:
-		virtual void onCreateDxResources(ID2D1DeviceContext *dc) = 0;
+		virtual void onCreateDxResources(ID2D1DeviceContext* dc) = 0;
 		virtual void onReleaseDxResources() = 0;
-		virtual void onResizeScene(ResizeType type, const SIZE &size) = 0;
+		virtual void onResizeScene(ResizeType type, const SIZE& size) = 0;
+		virtual void onRender(ID2D1DeviceContext* dc) = 0;
 	};
 }

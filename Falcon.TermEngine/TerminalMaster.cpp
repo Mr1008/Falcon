@@ -35,7 +35,10 @@ namespace Engine
 	{
 		auto renderer = make_unique<DxTerminalRenderer>(&textBuffer);
 		renderer->registerListener(this);
-		terminalWindow = make_unique<TerminalWindowController>(move(renderer));
+		terminalWindow = make_unique<TerminalWindowController>(move(renderer), [this](wchar_t i) {
+			DWORD bytesWritten = 0;
+			WriteFile(pipeOut, &i, 1, &bytesWritten, nullptr);
+			});
 		windowThread = make_unique<thread>(
 			[this]() {
 				terminalWindow->show();
@@ -62,7 +65,7 @@ namespace Engine
 		return terminalWindow->isUp();
 	}
 
-	void TerminalMaster::onTerminalSizeChange(const COORD & size)
+	void TerminalMaster::onTerminalSizeChange(const COORD& size)
 	{
 		ResizePseudoConsole(con, size);
 	}

@@ -1,6 +1,7 @@
 #pragma once
 #include <d2d1_2.h>
 #include <wrl.h>
+#include <chrono>
 #include "../Falcon.UI/TerminalRenderer.h"
 #include "TerminalBuffer.h"
 #include "RendererEventsListener.h"
@@ -15,11 +16,13 @@ namespace Engine
 	public:
 		DxTerminalRenderer(TerminalBuffer *textBuffer);
 		bool isReady() const;
-		void render(ID2D1DeviceContext* dc);
+		void init(std::function<void()> render);
+		COORD countSizeInCharacters();
 
 		virtual void onCreateDxResources(ID2D1DeviceContext* dc);
 		virtual void onReleaseDxResources();
 		virtual void onResizeScene(Controls::ResizeType type, const SIZE& size);
+		virtual void onRender(ID2D1DeviceContext* dc);
 
 	private:
 		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> fgBrush;
@@ -29,12 +32,12 @@ namespace Engine
 		Microsoft::WRL::ComPtr<IDWriteFactory> dWriteFactory;
 		TerminalBuffer* textBuffer;
 		bool isReadyFlag;
-		float charWidth;
+		DWRITE_TEXT_METRICS textMetrics;
 		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);
 		SIZE sceneSize;
+		bool cursorVisible = false;
 
 		void loadFont(HRESULT& hr);
 		void calculateCharWidth();
-		COORD countSizeInCharacters(SIZE sizeInPx); // Temporary, should go to renderer. Mock, counts incorrectly.
 	};
 }

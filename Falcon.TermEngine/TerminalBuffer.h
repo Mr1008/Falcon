@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <vector>
+#include <mutex>
 #include "../Falcon.Shared/Publisher.h"
 #include "ChangeListener.h"
 #include "Colors.h"
@@ -41,6 +42,11 @@ namespace Engine
 		Color backgroundColor;
 	};
 
+	struct VisibleRange {
+		size_t topLine;
+		size_t bottomLine;
+	};
+
 	typedef std::vector<TerminalCharacter> TextLine;
 
 	class TerminalBuffer :
@@ -52,6 +58,12 @@ namespace Engine
 		size_t getLinesCount() const;
 		const TextLine& getLine(size_t i);
 		const POINT& getCursorPosition() const;
+		void invalidate();
+		void inOwnedContext(std::function<void()> fn);
+		void clearOldBackbuffer();
+		bool hasChanges();
+		void clearChanged();
+		void setVisibleRange(size_t topLine, size_t bottomLine);
 
 		void setAttribute(CharacterAttribute attribute, bool enabled);
 		void setForegroundColor(ColorReference color); // TODO
@@ -69,12 +81,15 @@ namespace Engine
 		void eraseCharacters(short n);
 
 	private:
-		const size_t BACKBUFFER_SIZE = 20;
+		const size_t BACKBUFFER_SIZE = 600;
 		Color currentForegroundColor;
 		Color currentBackgroundColor;
 		CharacterAttribute currentAttributes;
 		std::vector<TextLine> linesBuffer;
 		POINT cursorPosition;
+		std::mutex freezeMutex;
+		bool hasChangesFlag;
+		VisibleRange visibleRange;
 
 		TextLine& getEditableLine(size_t i);
 		TextLine& getCurrentLine();

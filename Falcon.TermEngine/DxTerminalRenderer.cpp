@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <string>
+#include <thread>
 #include "DWriteFontLoader.h"
 #include "DxTerminalRenderer.h"
 
@@ -38,7 +39,7 @@ namespace Engine
 	void DxTerminalRenderer::onResizeScene(ResizeType type, const SIZE& size)
 	{
 		sceneSize = size;
-		notifyListeners([&](RendererEventsListener * listener) {listener->onTerminalSizeChange(countSizeInCharacters(size)); });
+		notifyListeners([&](RendererEventsListener* listener) {listener->onTerminalSizeChange(countSizeInCharacters()); });
 	}
 
 	bool DxTerminalRenderer::isReady() const
@@ -46,22 +47,51 @@ namespace Engine
 		return isReadyFlag;
 	}
 
-	void DxTerminalRenderer::render(ID2D1DeviceContext* dc)
+	void DxTerminalRenderer::init(function<void()> render)
 	{
-		dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
+		thread cursorThread = thread([this](function<void()> render) {
+			while (true) {
+				cursorVisible = !cursorVisible;
+				render();
+				Sleep(500);
+			}
+			}, move(render));
 
-		auto r = dc->GetSize();
-		dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
-		size_t linesCount = textBuffer->getLinesCount();
-		for (size_t y = 0; y < linesCount; ++y) {
-			auto &line = textBuffer->getLine(y);
-			for (size_t x = 0; x < line.size(); ++x) {
-				dc->DrawText(
-					&line[x].character,
-					1,
-					textFormat.Get(),
-					D2D1::RectF(x * 20, y * 20),
-					fgBrush.Get());
+		cursorThread.detach();
+	}
+
+	void DxTerminalRenderer::onRender(ID2D1DeviceContext* dc)
+	{
+		if (textBuffer->hasChanges()) {
+			dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
+			dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
+			textBuffer->inOwnedContext([&]() {
+				size_t linesCount = textBuffer->getLinesCount();
+				COORD size = countSizeInCharacters();
+				size_t linesToDisplay = min(size.Y, linesCount);
+				for (size_t y = 0; y < linesToDisplay; ++y) {
+					auto& line = textBuffer->getLine(linesCount - linesToDisplay + y);
+					unsigned int wrapCount = 0;
+					for (size_t x = 0; x < line.size(); ++x) {
+						if (x >= size.X) {
+							++wrapCount;
+						}
+
+						dc->SetTransform(D2D1::Matrix3x2F::Translation((x - wrapCount * size.X) * textMetrics.width, y * textMetrics.height));
+						dc->DrawText(
+							&line[x].character,
+							1,
+							textFormat.Get(),
+							D2D1::RectF(),
+							fgBrush.Get());
+					}
+				}
+				textBuffer->clearChanged();
+				});
+			if (cursorVisible) {
+				POINT position = textBuffer->getCursorPosition();
+				dc->SetTransform(D2D1::Matrix3x2F::Translation(position.x * textMetrics.width, position.y * textMetrics.height));
+				dc->FillRectangle(D2D1::RectF(0, 0, 3, textMetrics.height), fgBrush.Get());
 			}
 		}
 	}
@@ -95,18 +125,15 @@ namespace Engine
 		ComPtr<IDWriteTextLayout> textLayout;
 		HRESULT hr = dWriteFactory->CreateTextLayout(L"X", 1, textFormat.Get(), 100, 100, textLayout.GetAddressOf());
 		if (SUCCEEDED(hr)) {
-			hr = textLayout->DetermineMinWidth(&charWidth);
-			if (FAILED(hr)) {
-				charWidth = -1.f;
-			}
+			textLayout->GetMetrics(&textMetrics);
 		}
 	}
 
-	COORD DxTerminalRenderer::countSizeInCharacters(SIZE sizeInPx)
+	COORD DxTerminalRenderer::countSizeInCharacters()
 	{
 		return {
-			(short)sizeInPx.cx / 20,
-			(short)sizeInPx.cy / 20
+			static_cast<short>(sceneSize.cx / textMetrics.width),
+			static_cast<short>(sceneSize.cy / textMetrics.height)
 		};
 	}
 }

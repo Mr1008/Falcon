@@ -7,6 +7,7 @@
 #include <d3d11_2.h>
 #include <d2d1_2.h>
 #include <dcomp.h>
+#include <mutex>
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "d3d11")
 #pragma comment(lib, "d2d1")
@@ -34,17 +35,19 @@ namespace Controls
 		virtual void onResize(ResizeType type, const SIZE& size);
 		virtual bool onMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		void invalidate(std::function<void(ID2D1DeviceContext*)> fn);
+		void invalidate();
 		void registerTerminalRenderer(TerminalRenderer* renderer);
 		void unregisterTerminalRenderer(TerminalRenderer* renderer);
 
 	private:
 		const size_t SWAP_BUFFERS = 2;
 		const DXGI_FORMAT PIXEL_FORMAT = DXGI_FORMAT_B8G8R8A8_UNORM;
-		
+
 		enum DX_WINDOW_MSG {
 			RENDER = WM_USER
 		};
+
+		std::mutex renderMutex;
 
 		bool isAcrylicEnabled;
 		Microsoft::WRL::ComPtr<IDXGIFactory2> dxgiFactory;

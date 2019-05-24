@@ -11,7 +11,7 @@ namespace Engine
 		public Controls::ControlEventListener
 	{
 	public:
-		TerminalWindowController(std::unique_ptr<DxTerminalRenderer>&& renderer);
+		TerminalWindowController(std::unique_ptr<DxTerminalRenderer>&& renderer, std::function<void(wchar_t)> writeOutput);
 
 		void show();
 		void close();
@@ -29,5 +29,6 @@ namespace Engine
 		Controls::MainWindow window;
 		bool isWindowUp;
 		std::unique_ptr<DxTerminalRenderer> renderer;
+		std::function<void(wchar_t)> writeOutput;
 	};
 }

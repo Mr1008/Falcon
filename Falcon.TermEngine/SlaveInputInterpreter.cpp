@@ -13,9 +13,13 @@ namespace Engine
 
 	void SlaveInputInterpreter::acceptInput(const wstring& input)
 	{
-		for (auto c : input) {
-			handleChar(c);
-		}
+		buffer->inOwnedContext([&]() {
+			for (auto c : input) {
+				handleChar(c);
+			}
+			buffer->clearOldBackbuffer();
+			});
+		buffer->invalidate();
 	}
 
 	void SlaveInputInterpreter::handleChar(wchar_t c)
@@ -241,7 +245,7 @@ namespace Engine
 		parserState = ParserState::Echo;
 	}
 
-	bool SlaveInputInterpreter::parseDigit(wchar_t c, TNumParam & target)
+	bool SlaveInputInterpreter::parseDigit(wchar_t c, TNumParam& target)
 	{
 		if (!iswdigit(c)) {
 			return false;

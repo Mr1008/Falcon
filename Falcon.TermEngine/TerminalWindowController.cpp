@@ -8,10 +8,11 @@ namespace Engine
 	using namespace Controls;
 	using namespace Messages;
 
-	TerminalWindowController::TerminalWindowController(unique_ptr<DxTerminalRenderer>&& renderer) :
+	TerminalWindowController::TerminalWindowController(unique_ptr<DxTerminalRenderer>&& renderer, std::function<void(wchar_t)> writeOutput) :
 		window(L"Falcon"),
 		isWindowUp(false),
-		renderer(move(renderer))
+		renderer(move(renderer)),
+		writeOutput(writeOutput)
 	{
 		window.registerEventListener(this);
 		window.registerTerminalRenderer(this->renderer.get());
@@ -21,6 +22,7 @@ namespace Engine
 	{
 		window.show();
 		isWindowUp = true;
+		renderer->init([&]() {render(); });
 		MessagePipe::start();
 		isWindowUp = false;
 	}
@@ -42,6 +44,7 @@ namespace Engine
 
 	void TerminalWindowController::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
 	{
+		writeOutput(key);
 	}
 
 	void TerminalWindowController::onMouseMoved(const POINT& pos)
@@ -56,13 +59,12 @@ namespace Engine
 	{
 	}
 
-	void TerminalWindowController::onSizeChanged(Controls::ResizeType type, const SIZE& size)
+	void TerminalWindowController::onSizeChanged(ResizeType type, const SIZE& size)
 	{
-		render(); // TODO: Unify logic as this should go to renderer IMO
 	}
 
 	void TerminalWindowController::render()
 	{
-		window.invalidate([this](ID2D1DeviceContext * dc) {renderer->render(dc); });
+		window.invalidate();
 	}
 }
