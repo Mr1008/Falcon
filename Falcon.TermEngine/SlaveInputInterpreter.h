@@ -23,6 +23,7 @@ namespace Engine
 		typedef short TNumParam;
 
 		struct AnsiEscapeCommand {
+			std::wstring stringFormat;
 			std::vector<TNumParam> numParams1;
 		};
 

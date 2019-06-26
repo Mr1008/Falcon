@@ -9,9 +9,10 @@ namespace Engine
 		currentForegroundColor(255, 255, 255),
 		currentBackgroundColor(0, 0, 0),
 		currentAttributes(Normal),
-		cursorPosition({ 0, 0 })
+		cursorPosition({ 0, 0 }),
+		cursorBlink(true),
+		cursorVisible(true)
 	{
-		linesBuffer.push_back(vector<TerminalCharacter>());
 	}
 
 	size_t TerminalBuffer::getLinesCount() const
@@ -51,25 +52,43 @@ namespace Engine
 
 	void TerminalBuffer::setCursorBlinking(bool enable)
 	{
+		cursorBlink = enable;
+	}
+
+	bool TerminalBuffer::isCursorBlinking() const
+	{
+		return cursorBlink;
 	}
 
 	void TerminalBuffer::setCursorVisible(bool enable)
 	{
+		cursorVisible = enable;
+	}
+
+	bool TerminalBuffer::isCursorVisible() const
+	{
+		return cursorVisible;
 	}
 
 	void TerminalBuffer::setCursorPosition(short x, short y)
 	{
-		// cursorPosition = { x,y };
+		cursorPosition = { x,y };
+	}
+
+	const POINT& TerminalBuffer::getCursorPosition() const
+	{
+		return cursorPosition;
 	}
 
 	void TerminalBuffer::cursorForward(short n)
 	{
+		setCursorPosition(cursorPosition.x + n, cursorPosition.y);
 	}
 
 	void TerminalBuffer::writeChar(wchar_t character)
 	{
 		TextLine& line = getCurrentLine();
-		int x = cursorPosition.x;
+		const int x = cursorPosition.x;
 		size_t size = line.size();
 		TerminalCharacter newCharacter(character, currentAttributes, currentForegroundColor, currentBackgroundColor);
 		if (x > size) {
@@ -86,7 +105,6 @@ namespace Engine
 
 	void TerminalBuffer::newLine()
 	{
-		linesBuffer.push_back(vector<TerminalCharacter>());
 		cursorPosition.y++;
 	}
 
@@ -114,17 +132,23 @@ namespace Engine
 		default:
 			return; // Do nothing. Invalid command.
 		}
-
-
 	}
 
 	void TerminalBuffer::eraseCharacters(short n)
 	{
+		for (size_t i = 0; i < n; ++i) {
+			writeChar(L' ');
+		}
 	}
 
 	TextLine& TerminalBuffer::getEditableLine(size_t i)
 	{
-		return *(linesBuffer.begin() + i);
+		const size_t linesCount = getLinesCount();
+		if (i >= linesCount) {
+			linesBuffer.insert(linesBuffer.end(), i - linesCount + 1, TextLine());
+		}
+
+		return linesBuffer[i];
 	}
 
 	TextLine& TerminalBuffer::getCurrentLine()
@@ -132,15 +156,9 @@ namespace Engine
 		return getEditableLine(cursorPosition.y);
 	}
 
-	const POINT& TerminalBuffer::getCursorPosition() const
-	{
-		return cursorPosition;
-	}
-
 	void TerminalBuffer::invalidate()
 	{
 		notifyAboutChange();
-		hasChangesFlag = true;
 	}
 
 	void TerminalBuffer::inOwnedContext(std::function<void()> fn)
@@ -165,16 +183,6 @@ namespace Engine
 		size_t toRemove = count - BACKBUFFER_SIZE;
 		linesBuffer.erase(linesBuffer.begin(), linesBuffer.begin() + toRemove);
 		cursorPosition.y -= toRemove;
-	}
-
-	bool TerminalBuffer::hasChanges()
-	{
-		return hasChangesFlag;
-	}
-
-	void TerminalBuffer::clearChanged()
-	{
-		hasChangesFlag = false;
 	}
 
 	void TerminalBuffer::setVisibleRange(size_t topLine, size_t bottomLine)

@@ -170,7 +170,6 @@ namespace Controls
 
 	void DirectXWindow::onResize(ResizeType type, const SIZE& size)
 	{
-		Control::onResize(type, size);
 		if (type == ResizeType::Restored || type == ResizeType::Maximized)
 		{
 			dc->SetTarget(nullptr);
@@ -184,6 +183,7 @@ namespace Controls
 			createID2D1Bitmap();
 			notifyRenderers([&](TerminalRenderer* r) {r->onResizeScene(type, size); });
 		}
+		Control::onResize(type, size);
 	}
 
 	void DirectXWindow::invalidate()

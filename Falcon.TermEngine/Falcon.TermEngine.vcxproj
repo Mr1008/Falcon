@@ -203,13 +203,13 @@
     <ClInclude Include="DWriteFontLoader.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="RendererEventsListener.h" />
     <ClInclude Include="SlaveInputInterpreter.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Term.h" />
     <ClInclude Include="TerminalMaster.h" />
     <ClInclude Include="DxTerminalRenderer.h" />
     <ClInclude Include="TerminalWindowController.h" />
-    <ClInclude Include="RendererEventsListener.h" />
     <ClInclude Include="TerminalBuffer.h" />
   </ItemGroup>
   <ItemGroup>

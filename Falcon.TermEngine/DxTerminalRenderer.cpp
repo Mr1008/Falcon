@@ -39,7 +39,11 @@ namespace Engine
 	void DxTerminalRenderer::onResizeScene(ResizeType type, const SIZE& size)
 	{
 		sceneSize = size;
-		notifyListeners([&](RendererEventsListener* listener) {listener->onTerminalSizeChange(countSizeInCharacters()); });
+		const COORD oldSize = sizeInCharacters;
+		sizeInCharacters = countSizeInCharacters();
+		if (oldSize.X != sizeInCharacters.X || oldSize.Y != sizeInCharacters.Y) {
+			notifyListeners([&](RendererEventsListener* listener) {listener->onTerminalSizeChange(sizeInCharacters); });
+		}
 	}
 
 	bool DxTerminalRenderer::isReady() const
@@ -51,7 +55,7 @@ namespace Engine
 	{
 		thread cursorThread = thread([this](function<void()> render) {
 			while (true) {
-				cursorVisible = !cursorVisible;
+				cursorBlink = !cursorBlink || !textBuffer->isCursorBlinking();
 				render();
 				Sleep(500);
 			}
@@ -62,37 +66,30 @@ namespace Engine
 
 	void DxTerminalRenderer::onRender(ID2D1DeviceContext* dc)
 	{
-		if (textBuffer->hasChanges()) {
-			dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
-			dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
-			textBuffer->inOwnedContext([&]() {
-				size_t linesCount = textBuffer->getLinesCount();
-				COORD size = countSizeInCharacters();
-				size_t linesToDisplay = min(size.Y, linesCount);
-				for (size_t y = 0; y < linesToDisplay; ++y) {
-					auto& line = textBuffer->getLine(linesCount - linesToDisplay + y);
-					unsigned int wrapCount = 0;
-					for (size_t x = 0; x < line.size(); ++x) {
-						if (x >= size.X) {
-							++wrapCount;
-						}
+		dc->Clear(D2D1::ColorF(0.1882f, 0.0392f, 0.1412f, 0.95f));
+		dc->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
+		textBuffer->inOwnedContext([&]() {
+			size_t linesCount = textBuffer->getLinesCount();
+			size_t linesToDisplay = min(sizeInCharacters.Y, linesCount);
+			for (size_t y = 0; y < linesToDisplay; ++y) {
+				auto& line = textBuffer->getLine(linesCount - linesToDisplay + y);
+				for (size_t x = 0; x < line.size(); ++x) {
 
-						dc->SetTransform(D2D1::Matrix3x2F::Translation((x - wrapCount * size.X) * textMetrics.width, y * textMetrics.height));
-						dc->DrawText(
-							&line[x].character,
-							1,
-							textFormat.Get(),
-							D2D1::RectF(),
-							fgBrush.Get());
-					}
+					dc->SetTransform(D2D1::Matrix3x2F::Translation(x * textMetrics.width, y * textMetrics.height));
+					dc->DrawText(
+						&line[x].character,
+						1,
+						textFormat.Get(),
+						D2D1::RectF(),
+						fgBrush.Get());
 				}
-				textBuffer->clearChanged();
-				});
-			if (cursorVisible) {
-				POINT position = textBuffer->getCursorPosition();
-				dc->SetTransform(D2D1::Matrix3x2F::Translation(position.x * textMetrics.width, position.y * textMetrics.height));
-				dc->FillRectangle(D2D1::RectF(0, 0, 3, textMetrics.height), fgBrush.Get());
 			}
+			}
+		);
+		if (cursorBlink && textBuffer->isCursorVisible()) {
+			const POINT& position = textBuffer->getCursorPosition();
+			dc->SetTransform(D2D1::Matrix3x2F::Translation(position.x * textMetrics.width, position.y * textMetrics.height));
+			dc->FillRectangle(D2D1::RectF(0, 0, 3, textMetrics.height), fgBrush.Get());
 		}
 	}
 

@@ -17,7 +17,6 @@ namespace Engine
 		DxTerminalRenderer(TerminalBuffer *textBuffer);
 		bool isReady() const;
 		void init(std::function<void()> render);
-		COORD countSizeInCharacters();
 
 		virtual void onCreateDxResources(ID2D1DeviceContext* dc);
 		virtual void onReleaseDxResources();
@@ -35,9 +34,11 @@ namespace Engine
 		DWRITE_TEXT_METRICS textMetrics;
 		const D2D1_RECT_F padding = D2D1::RectF(10.f, 10.f, 10.f, 10.f);
 		SIZE sceneSize;
-		bool cursorVisible = false;
+		COORD sizeInCharacters;
+		bool cursorBlink = false;
 
 		void loadFont(HRESULT& hr);
 		void calculateCharWidth();
+		COORD countSizeInCharacters();
 	};
 }

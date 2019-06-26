@@ -82,9 +82,6 @@
     <ClInclude Include="DxTerminalRenderer.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="RendererEventsListener.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="ChangeListener.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -92,6 +89,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="TerminalBuffer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererEventsListener.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

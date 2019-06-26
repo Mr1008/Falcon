@@ -58,11 +58,11 @@ namespace Engine
 		size_t getLinesCount() const;
 		const TextLine& getLine(size_t i);
 		const POINT& getCursorPosition() const;
+		bool isCursorBlinking() const;
+		bool isCursorVisible() const;
 		void invalidate();
 		void inOwnedContext(std::function<void()> fn);
 		void clearOldBackbuffer();
-		bool hasChanges();
-		void clearChanged();
 		void setVisibleRange(size_t topLine, size_t bottomLine);
 
 		void setAttribute(CharacterAttribute attribute, bool enabled);
@@ -88,8 +88,9 @@ namespace Engine
 		std::vector<TextLine> linesBuffer;
 		POINT cursorPosition;
 		std::mutex freezeMutex;
-		bool hasChangesFlag;
 		VisibleRange visibleRange;
+		bool cursorBlink;
+		bool cursorVisible;
 
 		TextLine& getEditableLine(size_t i);
 		TextLine& getCurrentLine();
