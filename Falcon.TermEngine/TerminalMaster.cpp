@@ -36,8 +36,11 @@ namespace Engine
         auto renderer = make_unique<DxTerminalRenderer>(&textBuffer);
         renderer->registerListener(this);
         terminalWindow = make_unique<TerminalWindowController>(move(renderer), [this](wchar_t i) {
+            const size_t BUF_SIZE = 64;
             DWORD bytesWritten = 0;
-            WriteFile(pipeOut, &i, 1, &bytesWritten, nullptr);
+            char buffer[BUF_SIZE] = {};
+            int bytesToWrite = WideCharToMultiByte(CP_UTF8, 0, &i, 1, buffer, BUF_SIZE, nullptr, nullptr);
+            WriteFile(pipeOut, buffer, bytesToWrite, &bytesWritten, nullptr);
             });
         windowThread = make_unique<thread>(
             [this]() {
@@ -80,7 +83,7 @@ namespace Engine
     void TerminalMaster::onSlaveInput(char* buffer, size_t bufferSize)
     {
         auto wideBuf = make_unique<wchar_t[]>(bufferSize);
-        MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buffer, bufferSize, wideBuf.get(), bufferSize);
-        inputInterpreter.acceptInput(wstring(wideBuf.get(), bufferSize));
+        int convertedChars = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buffer, bufferSize, wideBuf.get(), bufferSize);
+        inputInterpreter.acceptInput(wstring(wideBuf.get(), convertedChars));
     }
 }

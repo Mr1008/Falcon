@@ -55,8 +55,8 @@ namespace Engine
     {
         thread cursorThread = thread([this](function<void()> render) {
             while (true) {
-                cursorBlink = !cursorBlink || !textBuffer->isCursorBlinking();
-                render();
+                cursorBlink = !cursorBlink;
+                // render(); // Uncomment to enable cursor blinking. Rendering needs serious optimisation since it eats a lot of CPU right now.
                 Sleep(500);
             }
             }, move(render));
@@ -86,7 +86,7 @@ namespace Engine
             }
             }
         );
-        if (cursorBlink && textBuffer->isCursorVisible()) {
+        if ((cursorBlink || !textBuffer->isCursorBlinking()) && textBuffer->isCursorVisible()) {
             const POINT& position = textBuffer->getCursorPosition();
             dc->SetTransform(D2D1::Matrix3x2F::Translation(position.x * textMetrics.width, position.y * textMetrics.height));
             dc->FillRectangle(D2D1::RectF(0, 0, 3, textMetrics.height), fgBrush.Get());
