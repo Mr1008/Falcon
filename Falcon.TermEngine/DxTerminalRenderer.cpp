@@ -76,6 +76,8 @@ namespace Engine
                 for (size_t x = 0; x < line.size(); ++x) {
 
                     dc->SetTransform(D2D1::Matrix3x2F::Translation(x * textMetrics.width, y * textMetrics.height));
+                    const TerminalCharacter& character = line[x];
+                    fgBrush->SetColor(D2D1::ColorF(character.foregroundColor.r, character.foregroundColor.g, character.foregroundColor.b));
                     dc->DrawText(
                         &line[x].character,
                         1,

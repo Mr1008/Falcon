@@ -40,12 +40,12 @@ namespace Engine
         }
     }
 
-    void TerminalBuffer::setForegroundColor(Color color)
+    void TerminalBuffer::setForegroundColor(const Color&& color)
     {
         currentForegroundColor = color;
     }
 
-    void TerminalBuffer::setBackgroundColor(Color color)
+    void TerminalBuffer::setBackgroundColor(const Color&& color)
     {
         currentBackgroundColor = color;
     }

@@ -14,12 +14,12 @@ namespace Engine
 
     void SlaveInputInterpreter::acceptInput(const wstring& input)
     {
-        buffer->inOwnedContext([&]() {
-            for (auto c : input) {
-                handleChar(c);
-            }
-            buffer->clearOldBackbuffer();
-            });
+        //buffer->inOwnedContext([&]() {
+        for (auto c : input) {
+            handleChar(c);
+        }
+        buffer->clearOldBackbuffer();
+        //  });
         buffer->invalidate();
     }
 
@@ -81,28 +81,33 @@ namespace Engine
 
     void SlaveInputInterpreter::parser_csiStarted(wchar_t c)
     {
-        currentCommand.stringFormat += c;
         switch (c) {
         case L'?':
+            currentCommand.stringFormat += c;
             parserState = ParserState::CSIQuestionMark;
             break;
         case L'C':
+            currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             cursorForward();
             break;
         case L'H':
+            currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0, 0 };
             setCursorPosition();
             break;
         case L'J':
+            currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             eraseInDisplay();
             break;
         case L'X':
+            currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             eraseCharacter();
             break;
         case L'm':
+            currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             setGraphicsRendition(currentCommand.numParams1);
             break;
@@ -226,12 +231,19 @@ namespace Engine
         for (TNumParam param : params) {
             switch (param)
             {
-            case 0:
+            case 0: {
                 buffer->setAttribute(CharacterAttribute::Normal, true);
+                buffer->setForegroundColor(Color(255, 255, 255));
+                break; }
+            case 92:
+                buffer->setForegroundColor(Color(0, 255, 0));
+                break;
+            case 93:
+                buffer->setForegroundColor(Color(255, 255, 0));
                 break;
             default:
                 handleUnsupportedAnsiEscapeCode();
-                return;
+                break;
             }
         }
 
@@ -274,7 +286,7 @@ namespace Engine
         }
         ss << L"\tCode: " << currentCommand.stringFormat << endl;
         ss << L"\tState: " << parserState << endl;
-        ss << L"\tFailing character: " << (c == L'\0' ? L"\\0" : wstring(c, 1)) << endl;
+        ss << L"\tFailing character: " << (c == L'\0' ? L"Unknown command" : wstring(c, 1)) << endl;
         ss << L"\tNumParams1: [";
         for (TNumParam p : currentCommand.numParams1) {
             ss << p << L", ";
@@ -286,8 +298,8 @@ namespace Engine
         ss << L"] " << endl << endl;
         OutputDebugString(ss.str().c_str());
         parserState = ParserState::Echo;
-        for (auto c : currentCommand.stringFormat) {
-            handleChar(c);
+        for (auto character : currentCommand.stringFormat) {
+            handleChar(character);
         }
     }
 }

@@ -67,9 +67,9 @@ namespace Engine
 
         void setAttribute(CharacterAttribute attribute, bool enabled);
         void setForegroundColor(ColorReference color); // TODO
-        void setForegroundColor(Color color);
+        void setForegroundColor(const Color &&color);
         void setBackgroundColor(ColorReference color); // TODO
-        void setBackgroundColor(Color color);
+        void setBackgroundColor(const Color &&color);
         void setCursorBlinking(bool enable);
         void setCursorVisible(bool enable);
         void setCursorPosition(short x, short y);

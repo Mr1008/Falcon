@@ -4,12 +4,12 @@ namespace Engine
 {
     struct Color
     {
-        Color(char r, char g, char b) : r(r), g(g), b(b)
+        Color(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b)
         {}
 
-        char r;
-        char g;
-        char b;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
     };
 
     enum ColorReference
