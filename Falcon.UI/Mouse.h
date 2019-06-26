@@ -2,10 +2,10 @@
 
 namespace Controls
 {
-	enum MouseButton
-	{
-		Left,
-		Middle,
-		Right
-	};
+    enum MouseButton
+    {
+        Left,
+        Middle,
+        Right
+    };
 }

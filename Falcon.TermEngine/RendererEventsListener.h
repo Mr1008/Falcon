@@ -3,9 +3,9 @@
 
 namespace Engine
 {
-	class RendererEventsListener
-	{
-	public:
-		virtual void onTerminalSizeChange(const COORD& size) = 0;
-	};
+    class RendererEventsListener
+    {
+    public:
+        virtual void onTerminalSizeChange(const COORD& size) = 0;
+    };
 }

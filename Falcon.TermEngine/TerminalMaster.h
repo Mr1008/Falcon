@@ -10,32 +10,32 @@
 
 namespace Engine
 {
-	class TerminalMaster :
-		public RendererEventsListener,
-		public ChangeListener
-	{
-	public:
-		TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut, HPCON con);
-		void start();
-		void stop();
-		bool isUp() const;
+    class TerminalMaster :
+        public RendererEventsListener,
+        public ChangeListener
+    {
+    public:
+        TerminalMaster(PROCESS_INFORMATION* slave, HANDLE pipeIn, HANDLE pipeOut, HPCON con);
+        void start();
+        void stop();
+        bool isUp() const;
 
-		virtual void onTerminalSizeChange(const COORD& size);
-		virtual void onChange(void* sender);
+        virtual void onTerminalSizeChange(const COORD& size);
+        virtual void onChange(void* sender);
 
-	private:
-		std::unique_ptr<TerminalWindowController> terminalWindow;
-		PROCESS_INFORMATION* slave;
-		HPCON con;
-		HANDLE pipeIn;
-		HANDLE pipeOut;
-		std::unique_ptr<std::thread> pipeListenerThread;
-		std::unique_ptr<std::thread> windowThread;
-		TerminalBuffer textBuffer;
-		SlaveInputInterpreter inputInterpreter;
+    private:
+        std::unique_ptr<TerminalWindowController> terminalWindow;
+        PROCESS_INFORMATION* slave;
+        HPCON con;
+        HANDLE pipeIn;
+        HANDLE pipeOut;
+        std::unique_ptr<std::thread> pipeListenerThread;
+        std::unique_ptr<std::thread> windowThread;
+        TerminalBuffer textBuffer;
+        SlaveInputInterpreter inputInterpreter;
 
-		void onSlaveInput(char* buffer, size_t bufferSize);
+        void onSlaveInput(char* buffer, size_t bufferSize);
 
-		friend void pipeListener(HANDLE pipe, TerminalMaster* master);
-	};
+        friend void pipeListener(HANDLE pipe, TerminalMaster* master);
+    };
 }

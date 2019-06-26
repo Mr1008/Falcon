@@ -2,9 +2,9 @@
 
 namespace Engine
 {
-	class ChangeListener 
-	{
-	public:
-		virtual void onChange(void* sender) = 0;
-	};
+    class ChangeListener
+    {
+    public:
+        virtual void onChange(void* sender) = 0;
+    };
 }

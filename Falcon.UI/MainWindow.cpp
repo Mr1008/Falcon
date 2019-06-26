@@ -3,9 +3,9 @@
 
 namespace Controls
 {
-	void MainWindow::onDestroy()
-	{
-		DirectXWindow::onDestroy();
-		PostQuitMessage(0);
-	}
+    void MainWindow::onDestroy()
+    {
+        DirectXWindow::onDestroy();
+        PostQuitMessage(0);
+    }
 }

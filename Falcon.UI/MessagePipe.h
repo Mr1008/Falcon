@@ -2,11 +2,11 @@
 
 namespace Messages
 {
-	class MessagePipe {
-	public:
-		static void start();
+    class MessagePipe {
+    public:
+        static void start();
 
-	private:
-		MessagePipe() {}
-	};
+    private:
+        MessagePipe() {}
+    };
 }
