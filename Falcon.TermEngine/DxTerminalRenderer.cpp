@@ -56,7 +56,7 @@ namespace Engine
         thread cursorThread = thread([this](function<void()> render) {
             while (true) {
                 cursorBlink = !cursorBlink;
-                // render(); // Uncomment to enable cursor blinking. Rendering needs serious optimisation since it eats a lot of CPU right now.
+                render();
                 Sleep(500);
             }
             }, move(render));
@@ -74,12 +74,14 @@ namespace Engine
             for (size_t y = 0; y < linesToDisplay; ++y) {
                 auto& line = textBuffer->getLine(linesCount - linesToDisplay + y);
                 for (size_t x = 0; x < line.size(); ++x) {
-
-                    dc->SetTransform(D2D1::Matrix3x2F::Translation(x * textMetrics.width, y * textMetrics.height));
                     const TerminalCharacter& character = line[x];
+                    if (character.character == L' ') {
+                        continue;
+                    }
+                    dc->SetTransform(D2D1::Matrix3x2F::Translation(x * textMetrics.width, y * textMetrics.height));
                     fgBrush->SetColor(D2D1::ColorF(character.foregroundColor.r, character.foregroundColor.g, character.foregroundColor.b));
                     dc->DrawText(
-                        &line[x].character,
+                        &character.character,
                         1,
                         textFormat.Get(),
                         D2D1::RectF(),

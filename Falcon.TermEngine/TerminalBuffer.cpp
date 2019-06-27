@@ -113,6 +113,13 @@ namespace Engine
         cursorPosition.x = 0;
     }
 
+    void TerminalBuffer::backspace()
+    {
+        cursorPosition.x--;
+        writeChar(L' ');
+        cursorPosition.x--;
+    }
+
     void TerminalBuffer::eraseInDisplay(RelativePosition start, RelativePosition end)
     {
         switch (start) {

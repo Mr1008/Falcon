@@ -77,6 +77,7 @@ namespace Engine
         void writeChar(wchar_t character);
         void newLine();
         void carriageReturn();
+        void backspace();
         void eraseInDisplay(RelativePosition start, RelativePosition end);
         void eraseCharacters(short n);
 

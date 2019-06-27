@@ -60,6 +60,9 @@ namespace Engine
             parserState = ParserState::AnsiEscapeStarted;
             currentCommand = { L"ESC" };
             break;
+        case L'\b':
+            buffer->backspace();
+            break;
         default:
             buffer->writeChar(c);
             break;
