@@ -13,6 +13,8 @@ namespace Engine
         cursorBlink(true),
         cursorVisible(true)
     {
+        setBackgroundColor(ColorReference::Default);
+        setForegroundColor(ColorReference::Default);
     }
 
     size_t TerminalBuffer::getLinesCount() const
@@ -40,9 +42,19 @@ namespace Engine
         }
     }
 
+    void TerminalBuffer::setForegroundColor(ColorReference color)
+    {
+        setForegroundColor(colorMapper.mapReferenceToColor(color, Color(255, 255, 255)));
+    }
+
     void TerminalBuffer::setForegroundColor(const Color&& color)
     {
         currentForegroundColor = color;
+    }
+
+    void TerminalBuffer::setBackgroundColor(ColorReference color)
+    {
+        setBackgroundColor(colorMapper.mapReferenceToColor(color, Color(0, 0, 0, 0)));
     }
 
     void TerminalBuffer::setBackgroundColor(const Color&& color)

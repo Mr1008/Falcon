@@ -4,12 +4,13 @@ namespace Engine
 {
     struct Color
     {
-        Color(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b)
+        Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : r(r), g(g), b(b), a(a)
         {}
 
         uint8_t r;
         uint8_t g;
         uint8_t b;
+        uint8_t a;
     };
 
     enum ColorReference
@@ -31,5 +32,11 @@ namespace Engine
         BrightMagenta,
         BrightCyan,
         BrightWhite
+    };
+
+    class ColorMapper
+    {
+    public:
+        Color mapReferenceToColor(ColorReference reference, const Color&& defaultColor) const;
     };
 }

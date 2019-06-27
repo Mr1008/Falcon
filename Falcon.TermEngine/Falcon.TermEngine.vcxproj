@@ -178,6 +178,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Colors.cpp" />
     <ClCompile Include="DWriteFontCollectionLoader.cpp" />
     <ClCompile Include="DWriteFontFileEnumerator.cpp" />
     <ClCompile Include="DWriteFontLoader.cpp" />

@@ -25,6 +25,7 @@ namespace Engine
 
     private:
         Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> fgBrush;
+        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> bgBrush;
         Microsoft::WRL::ComPtr<IDWriteTextFormat> textFormat;
         Microsoft::WRL::ComPtr<IDWriteFontFile> fontFile;
         Microsoft::WRL::ComPtr<IDWriteFontFace> fontFace;

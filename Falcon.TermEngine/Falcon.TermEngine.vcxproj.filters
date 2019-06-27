@@ -47,6 +47,9 @@
     <ClCompile Include="TerminalBuffer.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Colors.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h">

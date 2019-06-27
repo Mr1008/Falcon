@@ -26,8 +26,9 @@ namespace Engine
         );
 
         loadFont(hr);
-        const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f);
+        const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.0f);
         dc->CreateSolidColorBrush(color, &fgBrush);
+        dc->CreateSolidColorBrush(color, &bgBrush);
         isReadyFlag = true;
     }
 
@@ -79,7 +80,9 @@ namespace Engine
                         continue;
                     }
                     dc->SetTransform(D2D1::Matrix3x2F::Translation(x * textMetrics.width, y * textMetrics.height));
-                    fgBrush->SetColor(D2D1::ColorF(character.foregroundColor.r, character.foregroundColor.g, character.foregroundColor.b));
+                    fgBrush->SetColor(D2D1::ColorF((character.foregroundColor.r << 16) + (character.foregroundColor.g << 8) + (character.foregroundColor.b), character.foregroundColor.a / 255.f));
+                    bgBrush->SetColor(D2D1::ColorF((character.backgroundColor.r << 16) + (character.backgroundColor.g << 8) + (character.backgroundColor.b), character.backgroundColor.a / 255.f));
+                    dc->FillRectangle(D2D1::RectF(0, 0, textMetrics.width, textMetrics.height), bgBrush.Get());
                     dc->DrawText(
                         &character.character,
                         1,
@@ -113,7 +116,7 @@ namespace Engine
                 DWRITE_FONT_WEIGHT_NORMAL,
                 DWRITE_FONT_STYLE_NORMAL,
                 DWRITE_FONT_STRETCH_NORMAL,
-                21,
+                20,
                 L"",
                 &textFormat
             );

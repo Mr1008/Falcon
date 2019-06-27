@@ -14,12 +14,12 @@ namespace Engine
 
     void SlaveInputInterpreter::acceptInput(const wstring& input)
     {
-        //buffer->inOwnedContext([&]() {
-        for (auto c : input) {
-            handleChar(c);
-        }
-        buffer->clearOldBackbuffer();
-        //  });
+        buffer->inOwnedContext([&]() {
+            for (auto c : input) {
+                handleChar(c);
+            }
+            buffer->clearOldBackbuffer();
+            });
         buffer->invalidate();
     }
 
@@ -234,15 +234,111 @@ namespace Engine
         for (TNumParam param : params) {
             switch (param)
             {
-            case 0: {
+            case 0:
                 buffer->setAttribute(CharacterAttribute::Normal, true);
-                buffer->setForegroundColor(Color(255, 255, 255));
-                break; }
+                buffer->setForegroundColor(ColorReference::Default);
+                break;
+            case 30:
+                buffer->setForegroundColor(ColorReference::Black);
+                break;
+            case 31:
+                buffer->setForegroundColor(ColorReference::Red);
+                break;
+            case 32:
+                buffer->setForegroundColor(ColorReference::Green);
+                break;
+            case 33:
+                buffer->setForegroundColor(ColorReference::Yellow);
+                break;
+            case 34:
+                buffer->setForegroundColor(ColorReference::Blue);
+                break;
+            case 35:
+                buffer->setForegroundColor(ColorReference::Magenta);
+                break;
+            case 36:
+                buffer->setForegroundColor(ColorReference::Cyan);
+                break;
+            case 37:
+                buffer->setForegroundColor(ColorReference::White);
+                break;
+            case 39:
+                buffer->setForegroundColor(ColorReference::Default);
+                break;
+            case 40:
+                buffer->setBackgroundColor(ColorReference::Black);
+                break;
+            case 41:
+                buffer->setBackgroundColor(ColorReference::Red);
+                break;
+            case 42:
+                buffer->setBackgroundColor(ColorReference::Green);
+                break;
+            case 43:
+                buffer->setBackgroundColor(ColorReference::Yellow);
+                break;
+            case 44:
+                buffer->setBackgroundColor(ColorReference::Blue);
+                break;
+            case 45:
+                buffer->setBackgroundColor(ColorReference::Magenta);
+                break;
+            case 46:
+                buffer->setBackgroundColor(ColorReference::Cyan);
+                break;
+            case 47:
+                buffer->setBackgroundColor(ColorReference::White);
+                break;
+            case 49:
+                buffer->setBackgroundColor(ColorReference::Default);
+                break;
+            case 90:
+                buffer->setForegroundColor(ColorReference::BrightBlack);
+                break;
+            case 91:
+                buffer->setForegroundColor(ColorReference::BrightRed);
+                break;
             case 92:
-                buffer->setForegroundColor(Color(0, 255, 0));
+                buffer->setForegroundColor(ColorReference::BrightGreen);
                 break;
             case 93:
-                buffer->setForegroundColor(Color(255, 255, 0));
+                buffer->setForegroundColor(ColorReference::BrightYellow);
+                break;
+            case 94:
+                buffer->setForegroundColor(ColorReference::BrightBlue);
+                break;
+            case 95:
+                buffer->setForegroundColor(ColorReference::BrightMagenta);
+                break;
+            case 96:
+                buffer->setForegroundColor(ColorReference::BrightCyan);
+                break;
+            case 97:
+                buffer->setForegroundColor(ColorReference::BrightWhite);
+                break;
+            case 100:
+                buffer->setBackgroundColor(ColorReference::BrightBlack);
+                break;
+            case 101:
+                buffer->setBackgroundColor(ColorReference::BrightRed);
+                break;
+            case 102:
+                buffer->setBackgroundColor(ColorReference::BrightGreen);
+                break;
+            case 103:
+                buffer->setBackgroundColor(ColorReference::BrightYellow);
+                break;
+            case 104:
+                buffer->setBackgroundColor(ColorReference::BrightBlue);
+                break;
+            case 105:
+                buffer->setBackgroundColor(ColorReference::BrightMagenta);
+                break;
+            case 106:
+                buffer->setBackgroundColor(ColorReference::BrightCyan);
+                break;
+            case 107:
+                buffer->setBackgroundColor(ColorReference::BrightWhite);
                 break;
             default:
                 handleUnsupportedAnsiEscapeCode();

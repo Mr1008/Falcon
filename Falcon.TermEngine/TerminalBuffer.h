@@ -66,9 +66,9 @@ namespace Engine
         void setVisibleRange(size_t topLine, size_t bottomLine);
 
         void setAttribute(CharacterAttribute attribute, bool enabled);
-        void setForegroundColor(ColorReference color); // TODO
+        void setForegroundColor(ColorReference color);
         void setForegroundColor(const Color &&color);
-        void setBackgroundColor(ColorReference color); // TODO
+        void setBackgroundColor(ColorReference color);
         void setBackgroundColor(const Color &&color);
         void setCursorBlinking(bool enable);
         void setCursorVisible(bool enable);
@@ -85,6 +85,7 @@ namespace Engine
         const size_t BACKBUFFER_SIZE = 600;
         Color currentForegroundColor;
         Color currentBackgroundColor;
+        ColorMapper colorMapper;
         CharacterAttribute currentAttributes;
         std::vector<TextLine> linesBuffer;
         POINT cursorPosition;
