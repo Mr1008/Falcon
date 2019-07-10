@@ -38,6 +38,7 @@ namespace Controls
         void invalidate();
         void registerTerminalRenderer(TerminalRenderer* renderer);
         void unregisterTerminalRenderer(TerminalRenderer* renderer);
+        void setTitle(const std::wstring& title);
 
     private:
         const size_t SWAP_BUFFERS = 2;

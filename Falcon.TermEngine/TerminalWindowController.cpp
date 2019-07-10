@@ -8,11 +8,11 @@ namespace Engine
     using namespace Controls;
     using namespace Messages;
 
-    TerminalWindowController::TerminalWindowController(unique_ptr<DxTerminalRenderer>&& renderer, std::function<void(wchar_t)> writeOutput) :
+    TerminalWindowController::TerminalWindowController(unique_ptr<DxTerminalRenderer>&& renderer, std::function<void(wchar_t)> sendInput) :
         window(L"Falcon"),
         isWindowUp(false),
         renderer(move(renderer)),
-        writeOutput(writeOutput)
+        sendInput(sendInput)
     {
         window.registerEventListener(this);
         window.registerTerminalRenderer(this->renderer.get());
@@ -44,7 +44,7 @@ namespace Engine
 
     void TerminalWindowController::onKeyPushed(wchar_t key, bool isFirstOccurence, unsigned int repeatCount)
     {
-        writeOutput(key);
+        sendInput(key);
     }
 
     void TerminalWindowController::onMouseMoved(const POINT& pos)
@@ -66,5 +66,10 @@ namespace Engine
     void TerminalWindowController::render()
     {
         window.invalidate();
+    }
+
+    void TerminalWindowController::setTitle(const std::wstring& title)
+    {
+        window.setTitle(title);
     }
 }

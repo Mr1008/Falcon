@@ -6,9 +6,13 @@
 namespace Engine
 {
     using namespace std;
+    static const wchar_t ESC = L'\x1b';
+    static const wchar_t BEL = L'\x07';
 
-    SlaveInputInterpreter::SlaveInputInterpreter(TerminalBuffer* textBuffer) :
-        buffer(textBuffer)
+    SlaveInputInterpreter::SlaveInputInterpreter(TerminalBuffer* textBuffer, TerminalWindowActions* windowActions) :
+        buffer(textBuffer),
+        windowActions(windowActions),
+        parserState(ParserState::Echo)
     {
     }
 
@@ -44,6 +48,15 @@ namespace Engine
         case ParserState::CSIQuestionMarkAndNumParam:
             parser_csiQuestionMarkAndNumParam(c);
             break;
+        case ParserState::OSCStarted:
+            parser_oscStarted(c);
+            break;
+        case ParserState::OSCNumParam1:
+            parser_oscNumParam1(c);
+            break;
+        case ParserState::OSCCaptureWindowTitle:
+            parser_oscCaptureWindowTitle(c);
+            break;
         }
     }
 
@@ -56,7 +69,7 @@ namespace Engine
         case L'\r':
             buffer->carriageReturn();
             break;
-        case L'\x1b':
+        case ESC:
             parserState = ParserState::AnsiEscapeStarted;
             currentCommand = { L"ESC" };
             break;
@@ -76,6 +89,9 @@ namespace Engine
         case L'[':
             parserState = ParserState::CSIStarted;
             break;
+        case L']':
+            parserState = ParserState::OSCStarted;
+            break;
         default:
             handleUnsupportedAnsiEscapeCode(c);
             break;
@@ -93,26 +109,31 @@ namespace Engine
             currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             cursorForward();
+            parserState = ParserState::Echo;
             break;
         case L'H':
             currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0, 0 };
             setCursorPosition();
+            parserState = ParserState::Echo;
             break;
         case L'J':
             currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             eraseInDisplay();
+            parserState = ParserState::Echo;
             break;
         case L'X':
             currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             eraseCharacter();
+            parserState = ParserState::Echo;
             break;
         case L'm':
             currentCommand.stringFormat += c;
             currentCommand.numParams1 = { 0 };
             setGraphicsRendition(currentCommand.numParams1);
+            parserState = ParserState::Echo;
             break;
         default:
             if (iswdigit(c)) {
@@ -138,18 +159,23 @@ namespace Engine
                 break;
             case L'C':
                 cursorForward();
+                parserState = ParserState::Echo;
                 break;
             case L'H':
                 setCursorPosition();
+                parserState = ParserState::Echo;
                 break;
             case L'J':
                 eraseInDisplay();
+                parserState = ParserState::Echo;
                 break;
             case L'X':
                 eraseCharacter();
+                parserState = ParserState::Echo;
                 break;
             case L'm':
                 setGraphicsRendition(currentCommand.numParams1);
+                parserState = ParserState::Echo;
                 break;
             default:
                 handleUnsupportedAnsiEscapeCode(c);
@@ -205,6 +231,65 @@ namespace Engine
         }
     }
 
+    void SlaveInputInterpreter::parser_oscStarted(wchar_t c)
+    {
+        switch (c) {
+        default:
+            if (iswdigit(c)) {
+                parserState = ParserState::OSCNumParam1;
+                currentCommand.numParams1 = { 0 };
+                handleChar(c);
+            }
+            else {
+                handleUnsupportedAnsiEscapeCode(c);
+            }
+            break;
+        }
+    }
+
+    void SlaveInputInterpreter::parser_oscNumParam1(wchar_t c)
+    {
+        currentCommand.stringFormat += c;
+        if (!parseDigit(c, currentCommand.numParams1.back())) {
+            switch (c)
+            {
+            case L';':
+                if (currentCommand.numParams1[0] == 0 || currentCommand.numParams1[0] == 2) {
+                    parserState = ParserState::OSCCaptureWindowTitle;
+                }
+                else
+                {
+                    handleUnsupportedAnsiEscapeCode(c);
+                }
+                break;
+            default:
+                handleUnsupportedAnsiEscapeCode(c);
+                break;
+            }
+        }
+    }
+
+    void SlaveInputInterpreter::parser_oscCaptureWindowTitle(wchar_t c)
+    {
+        switch (c)
+        {
+        case BEL:
+            currentCommand.stringFormat += L"BEL";
+            setTerminalTitle();
+            parserState = ParserState::Echo;
+            break;
+        default:
+            currentCommand.stringParam1 += c;
+            currentCommand.stringFormat += c;
+            break;
+        }
+    }
+
+    void SlaveInputInterpreter::setTerminalTitle()
+    {
+        windowActions->setTitle(L"Falcon - " + currentCommand.stringParam1);
+    }
+
     void SlaveInputInterpreter::eraseInDisplay()
     {
         switch (currentCommand.numParams1[0])
@@ -219,14 +304,11 @@ namespace Engine
             buffer->eraseInDisplay(RelativePosition::Begin, RelativePosition::End);
             break;
         }
-
-        parserState = ParserState::Echo;
     }
 
     void SlaveInputInterpreter::eraseCharacter()
     {
         buffer->eraseCharacters(currentCommand.numParams1[0]);
-        parserState = ParserState::Echo;
     }
 
     void SlaveInputInterpreter::setGraphicsRendition(vector<TNumParam> params)
@@ -345,8 +427,6 @@ namespace Engine
                 break;
             }
         }
-
-        parserState = ParserState::Echo;
     }
 
     void SlaveInputInterpreter::setCursorPosition()
@@ -355,13 +435,11 @@ namespace Engine
             max(currentCommand.numParams1[1] - 1, 0),
             max(currentCommand.numParams1[0] - 1, 0)
         );
-        parserState = ParserState::Echo;
     }
 
     void SlaveInputInterpreter::cursorForward()
     {
         buffer->cursorForward(max(currentCommand.numParams1[0], 1));
-        parserState = ParserState::Echo;
     }
 
     bool SlaveInputInterpreter::parseDigit(wchar_t c, TNumParam& target)

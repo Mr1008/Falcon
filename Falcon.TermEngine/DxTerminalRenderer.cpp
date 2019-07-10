@@ -44,6 +44,11 @@ namespace Engine
         sizeInCharacters = countSizeInCharacters();
         if (oldSize.X != sizeInCharacters.X || oldSize.Y != sizeInCharacters.Y) {
             notifyListeners([&](RendererEventsListener* listener) {listener->onTerminalSizeChange(sizeInCharacters); });
+            textBuffer->inOwnedContext([this]() {
+                textBuffer->clear();
+                }
+            );
+
         }
     }
 

@@ -246,4 +246,9 @@ namespace Controls
     {
         Publisher<TerminalRenderer>::unregisterListener(renderer);
     }
+
+    void DirectXWindow::setTitle(const std::wstring& title)
+    {
+        SetWindowText(getHwnd(), title.c_str());
+    }
 }

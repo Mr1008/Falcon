@@ -11,8 +11,7 @@ namespace Engine
         slave(slave),
         pipeIn(pipeIn),
         pipeOut(pipeOut),
-        pipeListenerThread(nullptr),
-        inputInterpreter(&textBuffer)
+        pipeListenerThread(nullptr)
     {
         textBuffer.registerListener(this);
     }
@@ -35,13 +34,8 @@ namespace Engine
     {
         auto renderer = make_unique<DxTerminalRenderer>(&textBuffer);
         renderer->registerListener(this);
-        terminalWindow = make_unique<TerminalWindowController>(move(renderer), [this](wchar_t i) {
-            const size_t BUF_SIZE = 64;
-            DWORD bytesWritten = 0;
-            char buffer[BUF_SIZE] = {};
-            int bytesToWrite = WideCharToMultiByte(CP_UTF8, 0, &i, 1, buffer, BUF_SIZE, nullptr, nullptr);
-            WriteFile(pipeOut, buffer, bytesToWrite, &bytesWritten, nullptr);
-            });
+        terminalWindow = make_unique<TerminalWindowController>(move(renderer), [this](wchar_t c) { onSlaveOutput(c); });
+        inputInterpreter = make_unique<SlaveInputInterpreter>(&textBuffer, terminalWindow.get());
         windowThread = make_unique<thread>(
             [this]() {
                 terminalWindow->show();
@@ -84,6 +78,15 @@ namespace Engine
     {
         auto wideBuf = make_unique<wchar_t[]>(bufferSize);
         int convertedChars = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buffer, bufferSize, wideBuf.get(), bufferSize);
-        inputInterpreter.acceptInput(wstring(wideBuf.get(), convertedChars));
+        inputInterpreter->acceptInput(wstring(wideBuf.get(), convertedChars));
+    }
+
+    void TerminalMaster::onSlaveOutput(wchar_t c)
+    {
+        const size_t BUF_SIZE = 64;
+        DWORD bytesWritten = 0;
+        char buffer[BUF_SIZE] = {};
+        int bytesToWrite = WideCharToMultiByte(CP_UTF8, 0, &c, 1, buffer, BUF_SIZE, nullptr, nullptr);
+        WriteFile(pipeOut, buffer, bytesToWrite, &bytesWritten, nullptr);
     }
 }

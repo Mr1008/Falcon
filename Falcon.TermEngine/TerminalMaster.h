@@ -31,10 +31,11 @@ namespace Engine
         HANDLE pipeOut;
         std::unique_ptr<std::thread> pipeListenerThread;
         std::unique_ptr<std::thread> windowThread;
+        std::unique_ptr<SlaveInputInterpreter> inputInterpreter;
         TerminalBuffer textBuffer;
-        SlaveInputInterpreter inputInterpreter;
 
         void onSlaveInput(char* buffer, size_t bufferSize);
+        void onSlaveOutput(wchar_t c);
 
         friend void pipeListener(HANDLE pipe, TerminalMaster* master);
     };

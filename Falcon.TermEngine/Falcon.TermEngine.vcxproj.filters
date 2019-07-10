@@ -79,9 +79,6 @@
     <ClInclude Include="TerminalWindowController.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="SlaveInputInterpreter.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="DxTerminalRenderer.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -95,6 +92,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="RendererEventsListener.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SlaveInputInterpreter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerminalWindowActions.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

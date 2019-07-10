@@ -13,8 +13,20 @@ namespace Engine
         cursorBlink(true),
         cursorVisible(true)
     {
+        clear();
+    }
+
+    void TerminalBuffer::clear()
+    {
+        currentForegroundColor = Color(255, 255, 255);
+        currentBackgroundColor = Color(0, 0, 0);
+        currentAttributes = CharacterAttribute::Normal;
+        cursorPosition = { 0, 0 };
+        cursorBlink = true;
+        cursorVisible = true;
         setBackgroundColor(ColorReference::Default);
         setForegroundColor(ColorReference::Default);
+        linesBuffer.clear();
     }
 
     size_t TerminalBuffer::getLinesCount() const

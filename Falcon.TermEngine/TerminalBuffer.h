@@ -55,6 +55,7 @@ namespace Engine
     public:
         TerminalBuffer();
 
+        void clear();
         size_t getLinesCount() const;
         const TextLine& getLine(size_t i);
         const POINT& getCursorPosition() const;
