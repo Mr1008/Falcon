@@ -81,19 +81,20 @@ namespace Engine
                 auto& line = textBuffer->getLine(linesCount - linesToDisplay + y);
                 for (size_t x = 0; x < line.size(); ++x) {
                     const TerminalCharacter& character = line[x];
-                    if (character.character == L' ') {
-                        continue;
-                    }
                     dc->SetTransform(D2D1::Matrix3x2F::Translation(x * textMetrics.width, y * textMetrics.height));
-                    fgBrush->SetColor(D2D1::ColorF((character.foregroundColor.r << 16) + (character.foregroundColor.g << 8) + (character.foregroundColor.b), character.foregroundColor.a / 255.f));
-                    bgBrush->SetColor(D2D1::ColorF((character.backgroundColor.r << 16) + (character.backgroundColor.g << 8) + (character.backgroundColor.b), character.backgroundColor.a / 255.f));
-                    dc->FillRectangle(D2D1::RectF(0, 0, textMetrics.width, textMetrics.height), bgBrush.Get());
-                    dc->DrawText(
-                        &character.character,
-                        1,
-                        textFormat.Get(),
-                        D2D1::RectF(),
-                        fgBrush.Get());
+                    if (character.backgroundColor.a != 0) {
+                        bgBrush->SetColor(D2D1::ColorF((character.backgroundColor.r << 16) + (character.backgroundColor.g << 8) + (character.backgroundColor.b), character.backgroundColor.a / 255.f));
+                        dc->FillRectangle(D2D1::RectF(0, 0, textMetrics.width, textMetrics.height), bgBrush.Get());
+                    }
+                    if (character.character != L' ') {
+                        fgBrush->SetColor(D2D1::ColorF((character.foregroundColor.r << 16) + (character.foregroundColor.g << 8) + (character.foregroundColor.b), character.foregroundColor.a / 255.f));
+                        dc->DrawText(
+                            &character.character,
+                            1,
+                            textFormat.Get(),
+                            D2D1::RectF(),
+                            fgBrush.Get());
+                    }
                 }
             }
             }

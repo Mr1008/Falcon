@@ -319,6 +319,7 @@ namespace Engine
             case 0:
                 buffer->setAttribute(CharacterAttribute::Normal, true);
                 buffer->setForegroundColor(ColorReference::Default);
+                buffer->setBackgroundColor(ColorReference::Default);
                 break;
             case 30:
                 buffer->setForegroundColor(ColorReference::Black);
